@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1200, initial-scale=1.0">
+    <title>AI创图App - UI原型图总览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            font-size: 16px;
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .prototype-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .prototype-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .prototype-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(168, 85, 247, 0.5);
+            box-shadow: 0 20px 40px rgba(168, 85, 247, 0.2);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .card-badge {
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .card-description {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .card-preview {
+            width: 100%;
+            height: 400px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0D0D0D;
+            margin-bottom: 15px;
+        }
+        
+        .card-preview iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform: scale(0.5);
+            transform-origin: top left;
+            width: 200%;
+            height: 200%;
+        }
+        
+        .card-link {
+            display: block;
+            text-align: center;
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .card-link:hover {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+        }
+        
+        .features-section {
+            max-width: 1400px;
+            margin: 60px auto 0;
+            padding: 40px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .features-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        
+        .feature-item {
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .feature-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+        }
+        
+        .feature-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .feature-desc {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.5;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AI创图App UI原型图</h1>
+        <p>基于对标产品（丸拍AI/WanSnap）分析设计的移动端UI原型，采用暗黑模式配合紫粉渐变强调色，打造科技感与时尚感兼具的视觉体验。</p>
+    </div>
+    
+    <div class="prototype-grid">
+        <div class="prototype-card">
+            <div class="card-header">
+                <span class="card-title">登录页</span>
+                <span class="card-badge">入口</span>
+            </div>
+            <p class="card-description">支持微信、手机验证码、Apple ID三种登录方式，展示App作品预览，突出品牌Slogan。</p>
+            <div class="card-preview">
+                <iframe src="login.html"></iframe>
+            </div>
+            <a href="login.html" target="_blank" class="card-link">查看完整页面 →</a>
+        </div>
+        
+        <div class="prototype-card">
+            <div class="card-header">
+                <span class="card-title">手机登录</span>
+                <span class="card-badge">认证</span>
+            </div>
+            <p class="card-description">手机号验证码登录流程，简洁的输入界面，配合数字键盘实现快速输入。</p>
+            <div class="card-preview">
+                <iframe src="phone_login.html"></iframe>
+            </div>
+            <a href="phone_login.html" target="_blank" class="card-link">查看完整页面 →</a>
+        </div>
+        
+        <div class="prototype-card">
+            <div class="card-header">
+                <span class="card-title">首页/发现</span>
+                <span class="card-badge">核心</span>
+            </div>
+            <p class="card-description">分类Tab导航、推荐Banner、热门模板、双列瀑布流作品展示，是用户发现内容的主要入口。</p>
+            <div class="card-preview">
+                <iframe src="home.html"></iframe>
+            </div>
+            <a href="home.html" target="_blank" class="card-link">查看完整页面 →</a>
+        </div>
+        
+        <div class="prototype-card">
+            <div class="card-header">
+                <span class="card-title">创作页</span>
+                <span class="card-badge">核心</span>
+            </div>
+            <p class="card-description">AI图片生成的主入口，展示热门模板卡片、快捷功能标签、照片上传按钮。</p>
+            <div class="card-preview">
+                <iframe src="create.html"></iframe>
+            </div>
+            <a href="create.html" target="_blank" class="card-link">查看完整页面 →</a>
+        </div>
+        
+        <div class="prototype-card">
+            <div class="card-header">
+                <span class="card-title">作品详情</span>
+                <span class="card-badge">互动</span>
+            </div>
+            <p class="card-description">展示AI生成作品、提示词、跟图列表，支持点赞和"跟图生成"功能。</p>
+            <div class="card-preview">
+                <iframe src="detail.html"></iframe>
+            </div>
+            <a href="detail.html" target="_blank" class="card-link">查看完整页面 →</a>
+        </div>
+        
+        <div class="prototype-card">
+            <div class="card-header">
+                <span class="card-title">分享弹窗</span>
+                <span class="card-badge">社交</span>
+            </div>
+            <p class="card-description">底部弹出式分享面板，支持微信、朋友圈、复制链接等多种分享方式。</p>
+            <div class="card-preview">
+                <iframe src="share.html"></iframe>
+            </div>
+            <a href="share.html" target="_blank" class="card-link">查看完整页面 →</a>
+        </div>
+        
+        <div class="prototype-card">
+            <div class="card-header">
+                <span class="card-title">个人中心</span>
+                <span class="card-badge">用户</span>
+            </div>
+            <p class="card-description">用户个人主页，展示头像、会员状态、积分，以及"我的"、"作品"、"点赞"三个Tab。</p>
+            <div class="card-preview">
+                <iframe src="profile.html"></iframe>
+            </div>
+            <a href="profile.html" target="_blank" class="card-link">查看完整页面 →</a>
+        </div>
+        
+        <div class="prototype-card">
+            <div class="card-header">
+                <span class="card-title">会员订阅</span>
+                <span class="card-badge">商业</span>
+            </div>
+            <p class="card-description">会员套餐页面，展示会员权益、多种订阅周期选项，支持连续订阅和单次购买。</p>
+            <div class="card-preview">
+                <iframe src="membership.html"></iframe>
+            </div>
+            <a href="membership.html" target="_blank" class="card-link">查看完整页面 →</a>
+        </div>
+    </div>
+    
+    <div class="features-section">
+        <h2 class="features-title">核心功能模块</h2>
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+                </div>
+                <div class="feature-name">用户认证</div>
+                <div class="feature-desc">微信、手机号、Apple ID多种登录方式</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2l2 7h7l-6 4 2 7-5-4-5 4 2-7-6-4h7l2-7z"/></svg>
+                </div>
+                <div class="feature-name">AI图片生成</div>
+                <div class="feature-desc">丰富模板、提示词、跟图生成功能</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+                </div>
+                <div class="feature-name">内容发现</div>
+                <div class="feature-desc">分类导航、瀑布流、推荐系统</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                </div>
+                <div class="feature-name">社交互动</div>
+                <div class="feature-desc">点赞、分享、举报等社交功能</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+                </div>
+                <div class="feature-name">个人中心</div>
+                <div class="feature-desc">作品管理、点赞收藏、账户设置</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+                </div>
+                <div class="feature-name">会员系统</div>
+                <div class="feature-desc">订阅套餐、积分体系、专属权益</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>AI创图App UI原型图 | 基于对标产品分析设计 | 2026</p>
+    </div>
+</body>
+</html>

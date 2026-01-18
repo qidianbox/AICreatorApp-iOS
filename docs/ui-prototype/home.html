@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=375, initial-scale=1.0">
+    <title>首页 - AI创图App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 20px auto;
+            background: #0D0D0D;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            border: 8px solid #1a1a1a;
+        }
+        
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            background: linear-gradient(180deg, #2d1f4e 0%, #0D0D0D 100%);
+        }
+        
+        .header {
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            font-style: italic;
+            background: linear-gradient(90deg, #fff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .points-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .points-badge svg {
+            fill: #a855f7;
+        }
+        
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 10px 20px;
+            overflow-x: auto;
+        }
+        
+        .category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            background: transparent;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            color: #fff;
+        }
+        
+        .tab svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        
+        .content {
+            height: calc(100% - 200px);
+            overflow-y: auto;
+            padding-bottom: 80px;
+        }
+        
+        .content::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px 10px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .section-more {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .banner-carousel {
+            padding: 0 20px;
+            margin-bottom: 10px;
+        }
+        
+        .banner {
+            width: 100%;
+            height: 160px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fbbf24 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+        }
+        
+        .banner-left {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .banner-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .banner-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .banner-right {
+            width: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .banner-image {
+            width: 100px;
+            height: 120px;
+            background: linear-gradient(135deg, #fce7f3 0%, #f9a8d4 100%);
+            border-radius: 12px;
+        }
+        
+        .banner-arrow {
+            position: absolute;
+            right: 15px;
+            bottom: 15px;
+            width: 32px;
+            height: 32px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        
+        .dot {
+            width: 20px;
+            height: 4px;
+            border-radius: 2px;
+            background: #333;
+        }
+        
+        .dot.active {
+            background: #fff;
+        }
+        
+        .template-row {
+            display: flex;
+            gap: 12px;
+            padding: 0 20px;
+            overflow-x: auto;
+        }
+        
+        .template-row::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .template-card {
+            flex-shrink: 0;
+            width: 110px;
+        }
+        
+        .template-image {
+            width: 110px;
+            height: 140px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .template-name {
+            font-size: 13px;
+            color: #fff;
+        }
+        
+        .waterfall {
+            display: flex;
+            gap: 10px;
+            padding: 0 20px;
+        }
+        
+        .waterfall-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .work-card {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+        
+        .work-image {
+            width: 100%;
+            aspect-ratio: 3/4;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .work-thumbnails {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: rgba(0,0,0,0.3);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        .work-thumb {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .work-info {
+            padding: 10px;
+        }
+        
+        .work-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .work-author {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .author-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+        }
+        
+        .author-name {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .work-views {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(180deg, transparent 0%, #0D0D0D 30%);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 20px;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #666;
+        }
+        
+        .nav-item.active {
+            color: #fff;
+        }
+        
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+        
+        .nav-item span {
+            font-size: 10px;
+        }
+        
+        .create-btn {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+            margin-top: -20px;
+        }
+        
+        .create-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span class="time">22:47</span>
+            <div class="icons">
+                <svg width="17" height="10" viewBox="0 0 17 10" fill="white">
+                    <rect x="0" y="6" width="3" height="4" rx="1"/>
+                    <rect x="4" y="4" width="3" height="6" rx="1"/>
+                    <rect x="8" y="2" width="3" height="8" rx="1"/>
+                    <rect x="12" y="0" width="3" height="10" rx="1"/>
+                </svg>
+                <svg width="15" height="11" viewBox="0 0 15 11" fill="white">
+                    <path d="M7.5 2.5C9.5 2.5 11.3 3.3 12.6 4.6L14 3.2C12.3 1.5 10 0.5 7.5 0.5C5 0.5 2.7 1.5 1 3.2L2.4 4.6C3.7 3.3 5.5 2.5 7.5 2.5Z"/>
+                    <path d="M7.5 5.5C8.7 5.5 9.8 6 10.6 6.8L12 5.4C10.8 4.2 9.2 3.5 7.5 3.5C5.8 3.5 4.2 4.2 3 5.4L4.4 6.8C5.2 6 6.3 5.5 7.5 5.5Z"/>
+                    <circle cx="7.5" cy="9" r="2"/>
+                </svg>
+                <svg width="25" height="12" viewBox="0 0 25 12" fill="white">
+                    <rect x="0" y="1" width="21" height="10" rx="2" stroke="white" stroke-width="1" fill="none"/>
+                    <rect x="22" y="4" width="2" height="4" rx="1"/>
+                    <rect x="2" y="3" width="16" height="6" rx="1" fill="#4ade80"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">AI创图</div>
+            <div class="points-badge">
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                    <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    <path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                </svg>
+                <span>0</span>
+            </div>
+        </div>
+        
+        <!-- Category Tabs -->
+        <div class="category-tabs">
+            <div class="tab active">首页</div>
+            <div class="tab">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+                美图
+            </div>
+            <div class="tab">
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+                生活
+            </div>
+            <div class="tab">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="12" r="2"/></svg>
+                萌宠
+            </div>
+            <div class="tab">
+                <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+                旅拍
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <!-- Banner Section -->
+            <div class="section-header">
+                <span class="section-title">推荐</span>
+                <div class="section-more">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="#888">
+                        <path d="M6 4l4 4-4 4" stroke="#888" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="banner-carousel">
+                <div class="banner">
+                    <div class="banner-left">
+                        <div class="banner-title">一键美发</div>
+                        <div class="banner-desc">发型发色一键换 解锁 N 种风格</div>
+                    </div>
+                    <div class="banner-right">
+                        <div class="banner-image"></div>
+                    </div>
+                    <div class="banner-arrow">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="#fff">
+                            <path d="M4 2l6 6-6 6" stroke="#fff" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="carousel-dots">
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+            
+            <!-- Hot Templates -->
+            <div class="section-header">
+                <span class="section-title">小红书同款</span>
+                <div class="section-more">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="#888">
+                        <path d="M6 4l4 4-4 4" stroke="#888" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="template-row">
+                <div class="template-card">
+                    <div class="template-image" style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);"></div>
+                    <div class="template-name">闪光灯雪景</div>
+                </div>
+                <div class="template-card">
+                    <div class="template-image" style="background: linear-gradient(135deg, #fce7f3 0%, #f9a8d4 100%);"></div>
+                    <div class="template-name">阴天转晴</div>
+                </div>
+                <div class="template-card">
+                    <div class="template-image" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);"></div>
+                    <div class="template-name">冬日暖阳</div>
+                </div>
+            </div>
+            
+            <!-- Discover Section -->
+            <div class="section-header">
+                <span class="section-title">发现</span>
+                <div class="section-more">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="#888">
+                        <path d="M6 4l4 4-4 4" stroke="#888" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="waterfall">
+                <div class="waterfall-column">
+                    <div class="work-card">
+                        <div class="work-image" style="background: linear-gradient(135deg, #e0f2fe 0%, #7dd3fc 100%); aspect-ratio: 3/4;">
+                            <div class="work-thumbnails">
+                                <div class="work-thumb" style="background: linear-gradient(135deg, #fce7f3 0%, #f9a8d4 100%);"></div>
+                                <div class="work-thumb" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);"></div>
+                                <div class="work-thumb" style="background: linear-gradient(135deg, #dcfce7 0%, #86efac 100%);"></div>
+                            </div>
+                        </div>
+                        <div class="work-info">
+                            <div class="work-title">雪地爱心</div>
+                            <div class="work-author">
+                                <div class="author-info">
+                                    <div class="author-avatar"></div>
+                                    <span class="author-name">百事不太可乐</span>
+                                </div>
+                                <div class="work-views">20.17K 👁</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="waterfall-column">
+                    <div class="work-card">
+                        <div class="work-image" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); aspect-ratio: 1/1;">
+                            <div class="work-thumbnails">
+                                <div class="work-thumb" style="background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);"></div>
+                                <div class="work-thumb" style="background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);"></div>
+                                <div class="work-thumb" style="background: linear-gradient(135deg, #d9f99d 0%, #bef264 100%);"></div>
+                            </div>
+                        </div>
+                        <div class="work-info">
+                            <div class="work-title">小猫冰淇淋</div>
+                            <div class="work-author">
+                                <div class="author-info">
+                                    <div class="author-avatar"></div>
+                                    <span class="author-name">甜甜圈缺口</span>
+                                </div>
+                                <div class="work-views">6.79K 👁</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <circle cx="6" cy="6" r="2" fill="currentColor"/>
+                </svg>
+            </div>
+            
+            <div class="create-btn">
+                <svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2"/>
+                </svg>
+            </div>
+            
+            <div class="nav-item">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- App基本信息 -->
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>AI创图</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	
+	<!-- 最低系统版本 -->
+	<key>MinimumOSVersion</key>
+	<string>17.0</string>
+	
+	<!-- 支持的界面方向 -->
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	
+	<!-- 启动屏幕 -->
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchScreenBackground</string>
+		<key>UIImageName</key>
+		<string>LaunchScreenLogo</string>
+	</dict>
+	
+	<!-- 状态栏样式 -->
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<true/>
+	
+	<!-- 隐私权限描述 -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>AI创图需要访问您的相册以选择照片进行AI处理</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>AI创图需要保存生成的图片到您的相册</string>
+	<key>NSCameraUsageDescription</key>
+	<string>AI创图需要使用相机拍摄照片进行AI处理</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>AI创图使用Face ID进行安全验证</string>
+	
+	<!-- URL Schemes -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<!-- 微信SDK -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>weixin</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>wx1234567890abcdef</string>
+			</array>
+		</dict>
+		<!-- App Deep Link -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>aicreator</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>aicreator</string>
+			</array>
+		</dict>
+	</array>
+	
+	<!-- 允许的URL Schemes（用于跳转其他App） -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>weixin</string>
+		<string>weixinULAPI</string>
+		<string>wechat</string>
+	</array>
+	
+	<!-- Universal Links -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:your-domain.com</string>
+		<string>webcredentials:your-domain.com</string>
+	</array>
+	
+	<!-- App Transport Security -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<!-- 如需添加例外域名，在此配置 -->
+		</dict>
+	</dict>
+	
+	<!-- 后台模式 -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+	
+	<!-- 应用类别 -->
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.photography</string>
+	
+	<!-- 是否需要全屏 -->
+	<key>UIRequiresFullScreen</key>
+	<true/>
+</dict>
+</plist>

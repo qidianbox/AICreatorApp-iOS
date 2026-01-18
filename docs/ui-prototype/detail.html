@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=375, initial-scale=1.0">
+    <title>作品详情 - AI创图App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 20px auto;
+            background: #0D0D0D;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            border: 8px solid #1a1a1a;
+        }
+        
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        
+        .nav-header {
+            position: absolute;
+            top: 44px;
+            left: 0;
+            right: 0;
+            height: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 10;
+        }
+        
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(100, 100, 100, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
+        
+        .page-title {
+            font-size: 17px;
+            font-weight: 600;
+        }
+        
+        .share-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .share-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: #fff;
+        }
+        
+        .main-image {
+            width: 100%;
+            height: 480px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #7dd3fc 50%, #0ea5e9 100%);
+            position: relative;
+        }
+        
+        .ai-badge {
+            position: absolute;
+            top: 100px;
+            left: 15px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #fff;
+        }
+        
+        .image-compare {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-compare svg {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+        }
+        
+        .content-section {
+            padding: 15px 20px;
+            height: calc(100% - 480px);
+            overflow-y: auto;
+            padding-bottom: 100px;
+        }
+        
+        .content-section::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .author-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+        }
+        
+        .author-name {
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        .prompt-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .prompt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .prompt-label {
+            font-size: 13px;
+            color: #888;
+        }
+        
+        .copy-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .copy-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: #888;
+        }
+        
+        .prompt-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #ccc;
+        }
+        
+        .prompt-expand {
+            color: #a855f7;
+            font-size: 13px;
+            margin-left: 5px;
+        }
+        
+        .follow-section {
+            margin-bottom: 15px;
+        }
+        
+        .follow-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .follow-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
+        .follow-count {
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .follow-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .follow-item {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .follow-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fce7f3 0%, #f9a8d4 100%);
+            flex-shrink: 0;
+        }
+        
+        .follow-content {
+            flex: 1;
+        }
+        
+        .follow-name {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .follow-image {
+            width: 140px;
+            height: 180px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #7dd3fc 100%);
+        }
+        
+        .follow-like {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        /* Bottom Action Bar */
+        .bottom-action {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 90px;
+            background: linear-gradient(180deg, transparent 0%, #0D0D0D 30%);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            padding-bottom: 25px;
+            gap: 15px;
+        }
+        
+        .like-btn {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .like-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: #ec4899;
+        }
+        
+        .follow-generate-btn {
+            flex: 1;
+            height: 50px;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span class="time">22:49</span>
+            <div class="icons">
+                <svg width="17" height="10" viewBox="0 0 17 10" fill="white">
+                    <rect x="0" y="6" width="3" height="4" rx="1"/>
+                    <rect x="4" y="4" width="3" height="6" rx="1"/>
+                    <rect x="8" y="2" width="3" height="8" rx="1"/>
+                    <rect x="12" y="0" width="3" height="10" rx="1"/>
+                </svg>
+                <svg width="15" height="11" viewBox="0 0 15 11" fill="white">
+                    <path d="M7.5 2.5C9.5 2.5 11.3 3.3 12.6 4.6L14 3.2C12.3 1.5 10 0.5 7.5 0.5C5 0.5 2.7 1.5 1 3.2L2.4 4.6C3.7 3.3 5.5 2.5 7.5 2.5Z"/>
+                    <path d="M7.5 5.5C8.7 5.5 9.8 6 10.6 6.8L12 5.4C10.8 4.2 9.2 3.5 7.5 3.5C5.8 3.5 4.2 4.2 3 5.4L4.4 6.8C5.2 6 6.3 5.5 7.5 5.5Z"/>
+                    <circle cx="7.5" cy="9" r="2"/>
+                </svg>
+                <svg width="25" height="12" viewBox="0 0 25 12" fill="white">
+                    <rect x="0" y="1" width="21" height="10" rx="2" stroke="white" stroke-width="1" fill="none"/>
+                    <rect x="22" y="4" width="2" height="4" rx="1"/>
+                    <rect x="2" y="3" width="16" height="6" rx="1" fill="#4ade80"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Navigation Header -->
+        <div class="nav-header">
+            <div class="back-btn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
+            </div>
+            <div class="page-title">雪地爱心</div>
+            <div class="share-btn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Main Image -->
+        <div class="main-image">
+            <div class="ai-badge">AI生成</div>
+            <div class="image-compare">
+                <svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="8" height="18" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <rect x="13" y="3" width="8" height="18" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Content Section -->
+        <div class="content-section">
+            <!-- Author -->
+            <div class="author-row">
+                <div class="author-avatar"></div>
+                <div class="author-name">百事不太可乐</div>
+            </div>
+            
+            <!-- Prompt -->
+            <div class="prompt-section">
+                <div class="prompt-header">
+                    <span class="prompt-label">提示词</span>
+                    <div class="copy-btn">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="prompt-text">
+                    帮我生成冬日雪地甜系他拍图，采用竖版近景俯拍他拍视角构图，特写脸部，整体为清新治愈胶片风，色彩柔...<span class="prompt-expand">展开</span>
+                </div>
+            </div>
+            
+            <!-- Follow List -->
+            <div class="follow-section">
+                <div class="follow-header">
+                    <span class="follow-title">跟图列表<span class="follow-count">(58)</span></span>
+                </div>
+                
+                <div class="follow-list">
+                    <div class="follow-item">
+                        <div class="follow-avatar"></div>
+                        <div class="follow-content">
+                            <div class="follow-name">33</div>
+                            <div class="follow-image"></div>
+                            <div class="follow-like">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
+                                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                                </svg>
+                                0
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="follow-item">
+                        <div class="follow-avatar" style="background: linear-gradient(135deg, #ddd6fe 0%, #a78bfa 100%);"></div>
+                        <div class="follow-content">
+                            <div class="follow-name">33</div>
+                            <div class="follow-image" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);"></div>
+                            <div class="follow-like">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
+                                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                                </svg>
+                                0
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Action Bar -->
+        <div class="bottom-action">
+            <div class="like-btn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                </svg>
+            </div>
+            <div class="follow-generate-btn">跟图生成</div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=375, initial-scale=1.0">
+    <title>手机登录 - AI创图App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 20px auto;
+            background: #0D0D0D;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            border: 8px solid #1a1a1a;
+        }
+        
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 15px;
+        }
+        
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
+        
+        .login-content {
+            padding: 30px 25px;
+        }
+        
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .login-subtitle {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 40px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .phone-input {
+            width: 100%;
+            height: 56px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .phone-number {
+            font-size: 18px;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        
+        .phone-count {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .get-code-btn {
+            width: 100%;
+            height: 56px;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 500;
+            color: #fff;
+        }
+        
+        /* Keyboard */
+        .keyboard {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #d1d5db;
+            padding: 8px 4px;
+            padding-bottom: 30px;
+        }
+        
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .key {
+            width: 110px;
+            height: 46px;
+            background: #fff;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 400;
+            color: #000;
+            box-shadow: 0 1px 0 #999;
+        }
+        
+        .key-sub {
+            font-size: 10px;
+            color: #666;
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+        
+        .key.special {
+            width: 80px;
+            font-size: 14px;
+            background: #adb5bd;
+        }
+        
+        .key.delete {
+            width: 80px;
+            background: #adb5bd;
+        }
+        
+        .key.delete svg {
+            width: 24px;
+            height: 24px;
+            fill: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span class="time">22:47</span>
+            <div class="icons">
+                <svg width="17" height="10" viewBox="0 0 17 10" fill="white">
+                    <rect x="0" y="6" width="3" height="4" rx="1"/>
+                    <rect x="4" y="4" width="3" height="6" rx="1"/>
+                    <rect x="8" y="2" width="3" height="8" rx="1"/>
+                    <rect x="12" y="0" width="3" height="10" rx="1"/>
+                </svg>
+                <svg width="15" height="11" viewBox="0 0 15 11" fill="white">
+                    <path d="M7.5 2.5C9.5 2.5 11.3 3.3 12.6 4.6L14 3.2C12.3 1.5 10 0.5 7.5 0.5C5 0.5 2.7 1.5 1 3.2L2.4 4.6C3.7 3.3 5.5 2.5 7.5 2.5Z"/>
+                    <path d="M7.5 5.5C8.7 5.5 9.8 6 10.6 6.8L12 5.4C10.8 4.2 9.2 3.5 7.5 3.5C5.8 3.5 4.2 4.2 3 5.4L4.4 6.8C5.2 6 6.3 5.5 7.5 5.5Z"/>
+                    <circle cx="7.5" cy="9" r="2"/>
+                </svg>
+                <svg width="25" height="12" viewBox="0 0 25 12" fill="white">
+                    <rect x="0" y="1" width="21" height="10" rx="2" stroke="white" stroke-width="1" fill="none"/>
+                    <rect x="22" y="4" width="2" height="4" rx="1"/>
+                    <rect x="2" y="3" width="16" height="6" rx="1" fill="#4ade80"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Back Button -->
+        <div class="back-btn">
+            <svg viewBox="0 0 24 24">
+                <path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+        </div>
+        
+        <!-- Login Content -->
+        <div class="login-content">
+            <h1 class="login-title">登录后体验完整功能</h1>
+            <p class="login-subtitle">使用手机号登录</p>
+            
+            <div class="input-group">
+                <div class="phone-input">
+                    <span class="phone-number">18638933359</span>
+                    <span class="phone-count">11/11</span>
+                </div>
+            </div>
+            
+            <div class="get-code-btn">获取验证码</div>
+        </div>
+        
+        <!-- Keyboard -->
+        <div class="keyboard">
+            <div class="keyboard-row">
+                <div class="key">1</div>
+                <div class="key">2<span class="key-sub">ABC</span></div>
+                <div class="key">3<span class="key-sub">DEF</span></div>
+            </div>
+            <div class="keyboard-row">
+                <div class="key">4<span class="key-sub">GHI</span></div>
+                <div class="key">5<span class="key-sub">JKL</span></div>
+                <div class="key">6<span class="key-sub">MNO</span></div>
+            </div>
+            <div class="keyboard-row">
+                <div class="key">7<span class="key-sub">PQRS</span></div>
+                <div class="key">8<span class="key-sub">TUV</span></div>
+                <div class="key">9<span class="key-sub">WXYZ</span></div>
+            </div>
+            <div class="keyboard-row">
+                <div class="key special">+*#</div>
+                <div class="key">0</div>
+                <div class="key delete">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <path d="M18 9l-6 6M12 9l6 6" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

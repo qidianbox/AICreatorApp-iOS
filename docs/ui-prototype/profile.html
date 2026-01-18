@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=375, initial-scale=1.0">
+    <title>个人中心 - AI创图App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 20px auto;
+            background: #0D0D0D;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            border: 8px solid #1a1a1a;
+        }
+        
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .profile-header {
+            height: 200px;
+            background: linear-gradient(180deg, #2d1f4e 0%, #1a1030 50%, #0D0D0D 100%);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+        
+        .settings-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .settings-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
+        
+        .avatar-container {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        
+        .avatar-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #fce7f3 0%, #f9a8d4 50%, #ec4899 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .avatar-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: #fff;
+        }
+        
+        .username {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .stats-row {
+            display: flex;
+            gap: 12px;
+            padding: 0 20px;
+            width: 100%;
+        }
+        
+        .stat-card {
+            flex: 1;
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .stat-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .stat-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: #a855f7;
+        }
+        
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .stat-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .stat-action {
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            font-size: 11px;
+            color: #fff;
+        }
+        
+        .stat-add {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stat-add svg {
+            width: 20px;
+            height: 20px;
+            fill: #888;
+        }
+        
+        .content-tabs {
+            display: flex;
+            margin-top: 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .content-tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 15px;
+            color: #666;
+            position: relative;
+        }
+        
+        .content-tab.active {
+            color: #fff;
+        }
+        
+        .content-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: #fff;
+            border-radius: 2px;
+        }
+        
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+        }
+        
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .empty-text {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            line-height: 1.6;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(180deg, transparent 0%, #0D0D0D 30%);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: 20px;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #666;
+        }
+        
+        .nav-item.active {
+            color: #fff;
+        }
+        
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+        
+        .create-btn {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+            margin-top: -20px;
+        }
+        
+        .create-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span class="time">22:48</span>
+            <div class="icons">
+                <svg width="17" height="10" viewBox="0 0 17 10" fill="white">
+                    <rect x="0" y="6" width="3" height="4" rx="1"/>
+                    <rect x="4" y="4" width="3" height="6" rx="1"/>
+                    <rect x="8" y="2" width="3" height="8" rx="1"/>
+                    <rect x="12" y="0" width="3" height="10" rx="1"/>
+                </svg>
+                <svg width="15" height="11" viewBox="0 0 15 11" fill="white">
+                    <path d="M7.5 2.5C9.5 2.5 11.3 3.3 12.6 4.6L14 3.2C12.3 1.5 10 0.5 7.5 0.5C5 0.5 2.7 1.5 1 3.2L2.4 4.6C3.7 3.3 5.5 2.5 7.5 2.5Z"/>
+                    <path d="M7.5 5.5C8.7 5.5 9.8 6 10.6 6.8L12 5.4C10.8 4.2 9.2 3.5 7.5 3.5C5.8 3.5 4.2 4.2 3 5.4L4.4 6.8C5.2 6 6.3 5.5 7.5 5.5Z"/>
+                    <circle cx="7.5" cy="9" r="2"/>
+                </svg>
+                <svg width="25" height="12" viewBox="0 0 25 12" fill="white">
+                    <rect x="0" y="1" width="21" height="10" rx="2" stroke="white" stroke-width="1" fill="none"/>
+                    <rect x="22" y="4" width="2" height="4" rx="1"/>
+                    <rect x="2" y="3" width="16" height="6" rx="1" fill="#4ade80"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="settings-btn">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
+            </div>
+            
+            <div class="avatar-container">
+                <div class="avatar-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 3c1.7 0 3 1.3 3 3s-1.3 3-3 3-3-1.3-3-3 1.3-3 3-3zm0 14c-2.5 0-4.7-1.3-6-3.2.1-2 4-3.1 6-3.1s5.9 1.1 6 3.1c-1.3 1.9-3.5 3.2-6 3.2z"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="username">泡泡のred</div>
+            
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-left">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">会员套餐</span>
+                            <span class="stat-value">免费版</span>
+                        </div>
+                    </div>
+                    <div class="stat-action">GO PRO</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-left">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">积分</span>
+                            <span class="stat-value">360</span>
+                        </div>
+                    </div>
+                    <div class="stat-add">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Tabs -->
+        <div class="content-tabs">
+            <div class="content-tab">我的</div>
+            <div class="content-tab active">作品</div>
+            <div class="content-tab">点赞</div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="empty-icon">
+                <svg viewBox="0 0 80 80" fill="none">
+                    <path d="M40 15L45 30L60 30L48 40L53 55L40 45L27 55L32 40L20 30L35 30L40 15Z" fill="url(#star-gradient)" stroke="#a855f7" stroke-width="2"/>
+                    <defs>
+                        <linearGradient id="star-gradient" x1="20" y1="15" x2="60" y2="55">
+                            <stop offset="0%" stop-color="#a855f7"/>
+                            <stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div class="empty-text">
+                暂无发布内容，立即发布你的<br>首个作品
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <circle cx="6" cy="6" r="2" fill="currentColor"/>
+                </svg>
+            </div>
+            
+            <div class="create-btn">
+                <svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2"/>
+                </svg>
+            </div>
+            
+            <div class="nav-item active">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

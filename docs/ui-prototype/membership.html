@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=375, initial-scale=1.0">
+    <title>会员套餐 - AI创图App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            margin: 20px auto;
+            background: #0D0D0D;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            border: 8px solid #1a1a1a;
+        }
+        
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        
+        .header-bg {
+            height: 280px;
+            background: linear-gradient(180deg, #4a2c6a 0%, #2d1f4e 50%, #1a1030 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><defs><radialGradient id="g1" cx="30%" cy="70%"><stop offset="0%" stop-color="%23f9a8d4" stop-opacity="0.3"/><stop offset="100%" stop-color="transparent"/></radialGradient><radialGradient id="g2" cx="70%" cy="30%"><stop offset="0%" stop-color="%23a855f7" stop-opacity="0.3"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><circle cx="120" cy="210" r="100" fill="url(%23g1)"/><circle cx="280" cy="90" r="80" fill="url(%23g2)"/></svg>');
+            background-size: cover;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 54px;
+            right: 15px;
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 11;
+        }
+        
+        .close-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
+        
+        .restore-btn {
+            position: absolute;
+            top: 60px;
+            left: 15px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            z-index: 11;
+        }
+        
+        .header-content {
+            position: absolute;
+            top: 100px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 5;
+        }
+        
+        .brand-name {
+            font-size: 28px;
+            font-weight: 300;
+            font-style: italic;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+        
+        .plan-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .content-section {
+            padding: 0 20px;
+            margin-top: -40px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .tab-switch {
+            display: flex;
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            border-radius: 22px;
+            font-size: 15px;
+            color: #888;
+            transition: all 0.3s;
+        }
+        
+        .tab-item.active {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            color: #fff;
+        }
+        
+        .benefits-list {
+            margin-bottom: 20px;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+        }
+        
+        .benefit-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .benefit-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .benefit-text {
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        .plan-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .plan-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .plan-card.selected {
+            border-color: #a855f7;
+            background: rgba(168, 85, 247, 0.1);
+        }
+        
+        .plan-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .plan-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .plan-price {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .plan-bonus {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .plan-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+        
+        .plan-badge {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .plan-daily {
+            font-size: 13px;
+            color: #888;
+        }
+        
+        .subscribe-btn {
+            width: 100%;
+            height: 54px;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            border-radius: 27px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        
+        .agreement-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 11px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .agreement-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #a855f7;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .agreement-checkbox.checked {
+            background: #a855f7;
+        }
+        
+        .agreement-checkbox.checked::after {
+            content: '✓';
+            color: #fff;
+            font-size: 10px;
+        }
+        
+        .agreement-text a {
+            color: #a855f7;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span class="time">22:48</span>
+            <div class="icons">
+                <svg width="17" height="10" viewBox="0 0 17 10" fill="white">
+                    <rect x="0" y="6" width="3" height="4" rx="1"/>
+                    <rect x="4" y="4" width="3" height="6" rx="1"/>
+                    <rect x="8" y="2" width="3" height="8" rx="1"/>
+                    <rect x="12" y="0" width="3" height="10" rx="1"/>
+                </svg>
+                <svg width="15" height="11" viewBox="0 0 15 11" fill="white">
+                    <path d="M7.5 2.5C9.5 2.5 11.3 3.3 12.6 4.6L14 3.2C12.3 1.5 10 0.5 7.5 0.5C5 0.5 2.7 1.5 1 3.2L2.4 4.6C3.7 3.3 5.5 2.5 7.5 2.5Z"/>
+                    <path d="M7.5 5.5C8.7 5.5 9.8 6 10.6 6.8L12 5.4C10.8 4.2 9.2 3.5 7.5 3.5C5.8 3.5 4.2 4.2 3 5.4L4.4 6.8C5.2 6 6.3 5.5 7.5 5.5Z"/>
+                    <circle cx="7.5" cy="9" r="2"/>
+                </svg>
+                <svg width="25" height="12" viewBox="0 0 25 12" fill="white">
+                    <rect x="0" y="1" width="21" height="10" rx="2" stroke="white" stroke-width="1" fill="none"/>
+                    <rect x="22" y="4" width="2" height="4" rx="1"/>
+                    <rect x="2" y="3" width="16" height="6" rx="1" fill="#4ade80"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Header Background -->
+        <div class="header-bg">
+            <div class="restore-btn">恢复购买</div>
+            <div class="close-btn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
+            </div>
+            <div class="header-content">
+                <div class="brand-name">AI创图</div>
+                <div class="plan-title">会员套餐</div>
+            </div>
+        </div>
+        
+        <!-- Content Section -->
+        <div class="content-section">
+            <!-- Tab Switch -->
+            <div class="tab-switch">
+                <div class="tab-item active">连续订阅</div>
+                <div class="tab-item">单次购买</div>
+            </div>
+            
+            <!-- Benefits -->
+            <div class="benefits-list">
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="#a855f7">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                    </div>
+                    <span class="benefit-text">生成作品自动加速</span>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="#ec4899">
+                            <path d="M18 6L6 18M6 6l12 12" stroke="#ec4899" stroke-width="3" fill="none"/>
+                        </svg>
+                    </div>
+                    <span class="benefit-text">生成作品去除品牌水印</span>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="#a855f7">
+                            <circle cx="12" cy="12" r="10" stroke="#a855f7" stroke-width="2" fill="none"/>
+                            <circle cx="12" cy="12" r="4" fill="#a855f7"/>
+                        </svg>
+                    </div>
+                    <span class="benefit-text">无限制的专属高级模板</span>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="#ec4899">
+                            <path d="M12 2l2 7h7l-6 4 2 7-5-4-5 4 2-7-6-4h7l2-7z"/>
+                        </svg>
+                    </div>
+                    <span class="benefit-text">新功能和高阶模板优先体验</span>
+                </div>
+            </div>
+            
+            <!-- Plan Options -->
+            <div class="plan-options">
+                <div class="plan-card selected">
+                    <div class="plan-info">
+                        <div class="plan-name">周会员</div>
+                        <div class="plan-price">¥8/每周</div>
+                        <div class="plan-bonus">赠送积分 16</div>
+                    </div>
+                    <div class="plan-right">
+                        <div class="plan-badge">+ 816积分</div>
+                        <div class="plan-daily">折合 ¥1.1/天</div>
+                    </div>
+                </div>
+                
+                <div class="plan-card">
+                    <div class="plan-info">
+                        <div class="plan-name">月会员</div>
+                        <div class="plan-price">¥38/月</div>
+                        <div class="plan-bonus">赠送积分 114</div>
+                    </div>
+                    <div class="plan-right">
+                        <div class="plan-badge">+ 3914积分</div>
+                        <div class="plan-daily">折合 ¥1.27/天</div>
+                    </div>
+                </div>
+                
+                <div class="plan-card">
+                    <div class="plan-info">
+                        <div class="plan-name">季会员</div>
+                        <div class="plan-price">¥98/3个月</div>
+                        <div class="plan-bonus">赠送积分 294</div>
+                    </div>
+                    <div class="plan-right">
+                        <div class="plan-badge">+ 10094积分</div>
+                        <div class="plan-daily">折合 ¥1.1/天</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Subscribe Button -->
+            <div class="subscribe-btn">立即开通</div>
+            
+            <!-- Agreement -->
+            <div class="agreement-row">
+                <div class="agreement-checkbox checked"></div>
+                <div class="agreement-text">
+                    同意并接受 <a href="#">《AI创图付费服务协议》</a>，您可在购买后点击应用市场中的"账号设置"功能来关闭自动续订
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
