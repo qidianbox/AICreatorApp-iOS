@@ -29,7 +29,7 @@ playground.xcworkspace
 Packages/
 Package.pins
 Package.resolved
-*.xcodeproj
+# *.xcodeproj  # 保留项目文件
 #
 # Xcode automatically generates this directory with a hierarchical structure
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata

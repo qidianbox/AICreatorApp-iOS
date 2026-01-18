@@ -1,0 +1,64 @@
+# SwiftLint 配置文件
+
+# 包含的路径
+included:
+  - AICreatorApp/Sources
+
+# 排除的路径
+excluded:
+  - Pods
+  - Carthage
+  - .build
+  - AICreatorApp/Preview Content
+
+# 禁用的规则
+disabled_rules:
+  - trailing_whitespace
+  - line_length
+  - function_body_length
+  - file_length
+  - type_body_length
+  - cyclomatic_complexity
+  - force_cast
+  - force_try
+  - identifier_name
+  - large_tuple
+  - nesting
+
+# 启用的可选规则
+opt_in_rules:
+  - empty_count
+  - closure_spacing
+  - contains_over_first_not_nil
+  - discouraged_object_literal
+  - empty_string
+  - first_where
+  - modifier_order
+  - operator_usage_whitespace
+  - overridden_super_call
+  - private_action
+  - private_outlet
+  - redundant_nil_coalescing
+  - single_test_class
+  - sorted_first_last
+  - unavailable_function
+  - unneeded_parentheses_in_closure_argument
+  - vertical_parameter_alignment_on_call
+  - yoda_condition
+
+# 规则配置
+type_name:
+  min_length: 2
+  max_length: 50
+
+function_parameter_count:
+  warning: 8
+  error: 10
+
+# 自定义规则
+custom_rules:
+  no_print:
+    name: "No Print Statements"
+    regex: "print\\("
+    message: "请使用 Logger 代替 print"
+    severity: warning

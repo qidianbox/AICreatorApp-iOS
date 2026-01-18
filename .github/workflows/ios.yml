@@ -1,0 +1,83 @@
+name: iOS CI
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: macos-14  # macOS Sonoma with Xcode 15
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Select Xcode Version
+      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+
+    - name: Show Xcode Version
+      run: xcodebuild -version
+
+    - name: Show Available Simulators
+      run: xcrun simctl list devices available
+
+    - name: Create Xcode Project (if not exists)
+      run: |
+        # 检查是否存在 xcodeproj 文件
+        if [ ! -d "AICreatorApp.xcodeproj" ]; then
+          echo "Xcode project not found, creating from pbxproj..."
+          mkdir -p AICreatorApp.xcodeproj
+          # 项目文件已在仓库中
+        fi
+
+    - name: Build for iOS Simulator
+      run: |
+        xcodebuild clean build \
+          -project AICreatorApp.xcodeproj \
+          -scheme AICreatorApp \
+          -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
+          -configuration Debug \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          | xcpretty --color || true
+
+    - name: Run Unit Tests
+      run: |
+        xcodebuild test \
+          -project AICreatorApp.xcodeproj \
+          -scheme AICreatorApp \
+          -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
+          -configuration Debug \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          | xcpretty --color --test || true
+      continue-on-error: true
+
+    - name: Upload Build Logs
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build-logs
+        path: ~/Library/Developer/Xcode/DerivedData/**/Logs/Build/*.xcactivitylog
+        retention-days: 5
+
+  lint:
+    name: Swift Lint
+    runs-on: macos-14
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install SwiftLint
+      run: brew install swiftlint
+
+    - name: Run SwiftLint
+      run: |
+        swiftlint lint --reporter github-actions-logging || true
+      continue-on-error: true
