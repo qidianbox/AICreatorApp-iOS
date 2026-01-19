@@ -2,7 +2,7 @@
 //  LoginView.swift
 //  AICreatorApp
 //
-//  登录页 - 完整SwiftUI代码框架
+//  登录页 - 完全匹配原型图设计
 //  基于设计规范文档 v3.0
 //
 //  Created by Manus AI on 2026/1/19.
@@ -19,75 +19,26 @@ struct LoginView: View {
     
     var body: some View {
         ZStack {
-            // 背景
-            LoginBackgroundView()
+            // 纯黑背景 - 匹配原型图 #0D0D0D
+            Color(hex: "#0D0D0D")
+                .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                Spacer()
+                // 状态栏
+                StatusBarView()
                 
-                // Logo和标题
-                VStack(spacing: Spacing.md) {
-                    Image("app_logo")
-                        .resizable()
-                        .frame(width: 80, height: 80)
-                        .cornerRadius(CornerRadius.lg)
+                // 作品展示网格 - 3x3彩色分类
+                ZStack(alignment: .topLeading) {
+                    LoginGalleryGridView()
                     
-                    Text("AI创图")
-                        .font(.title1)
-                        .fontWeight(.bold)
-                        .foregroundStyle(Color.primaryGradient)
-                    
-                    Text("一键生成专属艺术照")
-                        .font(.bodyMedium)
-                        .foregroundColor(.textSecondary)
+                    // 探索按钮 - 左上角
+                    ExploreButton()
+                        .padding(.top, 16)
+                        .padding(.leading, 15)
                 }
-                .padding(.bottom, Spacing.xxl)
                 
-                // 作品展示网格
-                LoginWorksGridView()
-                    .frame(height: 200)
-                    .padding(.bottom, Spacing.xxl)
-                
-                Spacer()
-                
-                // 登录按钮区域
-                VStack(spacing: Spacing.md) {
-                    // 微信登录
-                    LoginButton(
-                        icon: "wechat_icon",
-                        title: "微信登录",
-                        backgroundColor: Color(hex: "#07C160")
-                    ) {
-                        viewModel.loginWithWechat()
-                    }
-                    
-                    // Apple登录
-                    AppleSignInButton(viewModel: viewModel)
-                    
-                    // 手机号登录
-                    Button(action: {
-                        viewModel.showPhoneLogin = true
-                    }) {
-                        HStack(spacing: Spacing.xs) {
-                            Image(systemName: "iphone")
-                                .font(.system(size: 18))
-                            Text("手机号登录")
-                                .font(.buttonMedium)
-                        }
-                        .foregroundColor(.textSecondary)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.inputBackground)
-                        .cornerRadius(CornerRadius.md)
-                    }
-                }
-                .padding(.horizontal, Spacing.xl)
-                .padding(.bottom, Spacing.lg)
-                
-                // 用户协议
-                AgreementView(isAgreed: $viewModel.isAgreed)
-                    .padding(.horizontal, Spacing.xl)
-                    .padding(.bottom, Spacing.xl)
+                // 登录区域
+                LoginSectionView(viewModel: viewModel)
             }
             
             // 加载状态
@@ -109,119 +60,301 @@ struct LoginView: View {
     }
 }
 
-// MARK: - 登录背景视图
-struct LoginBackgroundView: View {
+// MARK: - 状态栏视图
+struct StatusBarView: View {
     var body: some View {
-        ZStack {
-            Color.appBackground
-                .ignoresSafeArea()
+        HStack {
+            Text("22:46")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.white)
             
-            // 渐变光效
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [Color.gradientPurple.opacity(0.3), Color.clear],
-                        center: .center,
-                        startRadius: 0,
-                        endRadius: 300
-                    )
-                )
-                .frame(width: 600, height: 600)
-                .offset(x: -100, y: -200)
+            Spacer()
             
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [Color.gradientPink.opacity(0.2), Color.clear],
-                        center: .center,
-                        startRadius: 0,
-                        endRadius: 250
-                    )
-                )
-                .frame(width: 500, height: 500)
-                .offset(x: 150, y: 100)
-        }
-    }
-}
-
-// MARK: - 登录作品展示网格
-struct LoginWorksGridView: View {
-    
-    private let sampleImages = [
-        "sample_1", "sample_2", "sample_3",
-        "sample_4", "sample_5", "sample_6"
-    ]
-    
-    private let columns = [
-        GridItem(.flexible(), spacing: Spacing.xs),
-        GridItem(.flexible(), spacing: Spacing.xs),
-        GridItem(.flexible(), spacing: Spacing.xs)
-    ]
-    
-    var body: some View {
-        LazyVGrid(columns: columns, spacing: Spacing.xs) {
-            ForEach(sampleImages.indices, id: \.self) { index in
-                RoundedRectangle(cornerRadius: CornerRadius.sm)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.gradientPurple.opacity(0.3 + Double(index) * 0.1),
-                                Color.gradientPink.opacity(0.2 + Double(index) * 0.05)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .aspectRatio(3/4, contentMode: .fit)
-                    .overlay(
-                        Image(systemName: "sparkles")
-                            .foregroundColor(.white.opacity(0.5))
-                    )
-            }
-        }
-        .padding(.horizontal, Spacing.xl)
-    }
-}
-
-// MARK: - 登录按钮
-struct LoginButton: View {
-    let icon: String
-    let title: String
-    let backgroundColor: Color
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: Spacing.sm) {
-                Image(icon)
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                
-                Text(title)
-                    .font(.buttonMedium)
+            HStack(spacing: 5) {
+                // 信号图标
+                Image(systemName: "cellularbars")
+                    .font(.system(size: 14))
+                // WiFi图标
+                Image(systemName: "wifi")
+                    .font(.system(size: 14))
+                // 电池图标
+                BatteryIcon()
             }
             .foregroundColor(.white)
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(backgroundColor)
-            .cornerRadius(CornerRadius.md)
+        }
+        .padding(.horizontal, 20)
+        .frame(height: 44)
+    }
+}
+
+// MARK: - 电池图标
+struct BatteryIcon: View {
+    var body: some View {
+        HStack(spacing: 1) {
+            RoundedRectangle(cornerRadius: 2)
+                .stroke(Color.white, lineWidth: 1)
+                .frame(width: 22, height: 10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 1)
+                        .fill(Color(hex: "#4ade80"))
+                        .frame(width: 16, height: 6)
+                        .padding(.leading, 2),
+                    alignment: .leading
+                )
+            
+            RoundedRectangle(cornerRadius: 1)
+                .fill(Color.white)
+                .frame(width: 2, height: 4)
         }
     }
 }
 
-// MARK: - Apple登录按钮
-struct AppleSignInButton: View {
+// MARK: - 探索按钮
+struct ExploreButton: View {
+    var body: some View {
+        Text("探索一下")
+            .font(.system(size: 13))
+            .foregroundColor(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(
+                Color.white.opacity(0.15)
+            )
+            .background(.ultraThinMaterial)
+            .cornerRadius(20)
+    }
+}
+
+// MARK: - 作品展示网格 - 3x3彩色分类
+struct LoginGalleryGridView: View {
+    
+    // 分类数据 - 匹配原型图
+    private let categories: [(name: String, colors: [Color])] = [
+        ("美食", [Color(hex: "#fef3c7"), Color(hex: "#fcd34d")]),
+        ("时尚", [Color(hex: "#e0e7ff"), Color(hex: "#c7d2fe")]),  // large
+        ("风景", [Color(hex: "#dcfce7"), Color(hex: "#86efac")]),
+        ("人像", [Color(hex: "#fce7f3"), Color(hex: "#f9a8d4")]),
+        ("动漫", [Color(hex: "#e0f2fe"), Color(hex: "#7dd3fc")]),
+        ("萌宠", [Color(hex: "#fef9c3"), Color(hex: "#fde047")]),
+        ("艺术", [Color(hex: "#f3e8ff"), Color(hex: "#d8b4fe")]),
+        ("复古", [Color(hex: "#ffe4e6"), Color(hex: "#fda4af")])
+    ]
+    
+    var body: some View {
+        GeometryReader { geometry in
+            let spacing: CGFloat = 8
+            let padding: CGFloat = 10
+            let availableWidth = geometry.size.width - padding * 2 - spacing * 2
+            let itemWidth = availableWidth / 3
+            let itemHeight = (380 - padding * 2 - spacing * 2) / 3
+            
+            ZStack {
+                // 背景渐变
+                LinearGradient(
+                    colors: [Color(hex: "#1a1a1a"), Color(hex: "#0D0D0D")],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                
+                VStack(spacing: spacing) {
+                    // 第一行
+                    HStack(spacing: spacing) {
+                        // 美食
+                        CategoryCell(name: categories[0].name, colors: categories[0].colors)
+                            .frame(width: itemWidth, height: itemHeight)
+                        
+                        // 时尚 (large - 占2行)
+                        CategoryCell(name: categories[1].name, colors: categories[1].colors)
+                            .frame(width: itemWidth, height: itemHeight * 2 + spacing)
+                        
+                        // 风景
+                        CategoryCell(name: categories[2].name, colors: categories[2].colors)
+                            .frame(width: itemWidth, height: itemHeight)
+                    }
+                    
+                    // 第二行
+                    HStack(spacing: spacing) {
+                        // 人像
+                        CategoryCell(name: categories[3].name, colors: categories[3].colors)
+                            .frame(width: itemWidth, height: itemHeight)
+                        
+                        // 动漫
+                        CategoryCell(name: categories[4].name, colors: categories[4].colors)
+                            .frame(width: itemWidth, height: itemHeight)
+                    }
+                    .padding(.leading, itemWidth + spacing) // 跳过时尚格子的位置
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    // 第三行
+                    HStack(spacing: spacing) {
+                        // 萌宠
+                        CategoryCell(name: categories[5].name, colors: categories[5].colors)
+                            .frame(width: itemWidth, height: itemHeight)
+                        
+                        // 艺术
+                        CategoryCell(name: categories[6].name, colors: categories[6].colors)
+                            .frame(width: itemWidth, height: itemHeight)
+                        
+                        // 复古
+                        CategoryCell(name: categories[7].name, colors: categories[7].colors)
+                            .frame(width: itemWidth, height: itemHeight)
+                    }
+                }
+                .padding(padding)
+            }
+        }
+        .frame(height: 380)
+    }
+}
+
+// MARK: - 分类格子
+struct CategoryCell: View {
+    let name: String
+    let colors: [Color]
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                colors: colors,
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            
+            Text(name)
+                .font(.system(size: 10))
+                .foregroundColor(Color(hex: "#666666"))
+        }
+        .cornerRadius(12)
+    }
+}
+
+// MARK: - 登录区域
+struct LoginSectionView: View {
     @ObservedObject var viewModel: LoginViewModel
     
     var body: some View {
-        SignInWithAppleButton(.signIn) { request in
-            request.requestedScopes = [.fullName, .email]
-        } onCompletion: { result in
-            viewModel.handleAppleSignIn(result: result)
+        VStack(spacing: 0) {
+            // App名称
+            Text("AI创图")
+                .font(.system(size: 28, weight: .bold))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.white, Color(hex: "#e0e0e0")],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .padding(.bottom, 8)
+            
+            // Slogan - 匹配原型图
+            HStack(spacing: 0) {
+                Text("释放你的")
+                    .foregroundColor(.white)
+                Text(""无限"")
+                    .foregroundColor(Color(hex: "#a855f7"))
+                Text("创意")
+                    .foregroundColor(.white)
+            }
+            .font(.system(size: 18))
+            .padding(.bottom, 30)
+            
+            // 登录按钮区域
+            VStack(spacing: 15) {
+                // 微信登录 - 紫粉渐变
+                Button(action: {
+                    viewModel.loginWithWechat()
+                }) {
+                    HStack(spacing: 10) {
+                        WeChatIcon()
+                            .frame(width: 22, height: 22)
+                        Text("微信登录")
+                            .font(.system(size: 16, weight: .medium))
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(
+                        LinearGradient(
+                            colors: [Color(hex: "#a855f7"), Color(hex: "#ec4899")],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(30)
+                }
+                
+                // 手机验证码登录 - 白色背景
+                Button(action: {
+                    viewModel.showPhoneLogin = true
+                }) {
+                    HStack(spacing: 10) {
+                        PhoneIcon()
+                            .frame(width: 20, height: 20)
+                        Text("手机验证码登录")
+                            .font(.system(size: 16, weight: .medium))
+                    }
+                    .foregroundColor(Color(hex: "#333333"))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(Color.white)
+                    .cornerRadius(30)
+                }
+                
+                // Apple登录 - 白色背景
+                Button(action: {
+                    viewModel.loginWithApple()
+                }) {
+                    HStack(spacing: 10) {
+                        AppleIcon()
+                            .frame(width: 20, height: 20)
+                        Text("Apple 账号登录")
+                            .font(.system(size: 16, weight: .medium))
+                    }
+                    .foregroundColor(Color(hex: "#333333"))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(Color.white)
+                    .cornerRadius(30)
+                }
+            }
+            .padding(.horizontal, 25)
+            .padding(.bottom, 20)
+            
+            // 用户协议
+            AgreementView(isAgreed: $viewModel.isAgreed)
+                .padding(.bottom, 30)
         }
-        .signInWithAppleButtonStyle(.white)
-        .frame(height: 50)
-        .cornerRadius(CornerRadius.md)
+        .padding(.top, 30)
+    }
+}
+
+// MARK: - 微信图标
+struct WeChatIcon: View {
+    var body: some View {
+        Image(systemName: "message.fill")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundColor(.white)
+    }
+}
+
+// MARK: - 手机图标
+struct PhoneIcon: View {
+    var body: some View {
+        Image(systemName: "iphone")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundColor(Color(hex: "#333333"))
+    }
+}
+
+// MARK: - Apple图标
+struct AppleIcon: View {
+    var body: some View {
+        Image(systemName: "apple.logo")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .foregroundColor(Color(hex: "#333333"))
     }
 }
 
@@ -230,38 +363,43 @@ struct AgreementView: View {
     @Binding var isAgreed: Bool
     
     var body: some View {
-        HStack(spacing: Spacing.xs) {
+        HStack(spacing: 8) {
+            // 圆形checkbox
             Button(action: {
                 isAgreed.toggle()
             }) {
-                Image(systemName: isAgreed ? "checkmark.circle.fill" : "circle")
-                    .foregroundColor(isAgreed ? .gradientPurple : .textTertiary)
-                    .font(.system(size: 18))
+                Circle()
+                    .stroke(isAgreed ? Color(hex: "#a855f7") : Color(hex: "#444444"), lineWidth: 2)
+                    .frame(width: 18, height: 18)
+                    .overlay(
+                        Circle()
+                            .fill(isAgreed ? Color(hex: "#a855f7") : Color.clear)
+                            .frame(width: 10, height: 10)
+                    )
             }
             
-            Text("登录即表示同意")
-                .font(.caption1)
-                .foregroundColor(.textTertiary)
-            
-            Button(action: {
-                // 打开用户协议
-            }) {
-                Text("《用户协议》")
-                    .font(.caption1)
-                    .foregroundStyle(Color.primaryGradient)
+            HStack(spacing: 0) {
+                Text("我已阅读并接受 ")
+                    .foregroundColor(Color(hex: "#888888"))
+                
+                Button(action: {
+                    // 打开用户协议
+                }) {
+                    Text("用户协议")
+                        .foregroundColor(Color(hex: "#a855f7"))
+                }
+                
+                Text(" 和 ")
+                    .foregroundColor(Color(hex: "#888888"))
+                
+                Button(action: {
+                    // 打开隐私政策
+                }) {
+                    Text("隐私政策")
+                        .foregroundColor(Color(hex: "#a855f7"))
+                }
             }
-            
-            Text("和")
-                .font(.caption1)
-                .foregroundColor(.textTertiary)
-            
-            Button(action: {
-                // 打开隐私政策
-            }) {
-                Text("《隐私政策》")
-                    .font(.caption1)
-                    .foregroundStyle(Color.primaryGradient)
-            }
+            .font(.system(size: 12))
         }
     }
 }
@@ -279,123 +417,96 @@ struct PhoneLoginView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.appBackground
+                // 背景
+                Color(hex: "#0D0D0D")
                     .ignoresSafeArea()
                 
-                VStack(spacing: Spacing.xl) {
-                    // 标题
-                    VStack(spacing: Spacing.xs) {
-                        Text("手机号登录")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.textPrimary)
-                        
-                        Text("未注册的手机号将自动创建账号")
-                            .font(.bodySmall)
-                            .foregroundColor(.textSecondary)
-                    }
-                    .padding(.top, Spacing.xl)
+                VStack(spacing: 0) {
+                    // 状态栏
+                    StatusBarView()
                     
-                    // 输入区域
-                    VStack(spacing: Spacing.md) {
-                        // 手机号输入
-                        HStack(spacing: Spacing.sm) {
-                            Text("+86")
-                                .font(.bodyMedium)
-                                .foregroundColor(.textPrimary)
-                                .frame(width: 50)
-                            
-                            Divider()
-                                .frame(height: 20)
-                                .background(Color.borderDefault)
-                            
-                            TextField("请输入手机号", text: $phone)
-                                .font(.bodyMedium)
-                                .foregroundColor(.textPrimary)
-                                .keyboardType(.phonePad)
+                    // 返回按钮
+                    HStack {
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(width: 44, height: 44)
                         }
-                        .padding(.horizontal, Spacing.md)
-                        .frame(height: 50)
-                        .background(Color.inputBackground)
-                        .cornerRadius(CornerRadius.md)
-                        
-                        // 验证码输入
-                        HStack(spacing: Spacing.sm) {
-                            TextField("请输入验证码", text: $verifyCode)
-                                .font(.bodyMedium)
-                                .foregroundColor(.textPrimary)
-                                .keyboardType(.numberPad)
-                            
-                            Button(action: sendVerifyCode) {
-                                Text(countdown > 0 ? "\(countdown)s" : "获取验证码")
-                                    .font(.buttonSmall)
-                                    .foregroundStyle(
-                                        countdown > 0 ? AnyShapeStyle(Color.textTertiary) : AnyShapeStyle(Color.primaryGradient)
-                                    )
-                            }
-                            .disabled(countdown > 0 || phone.count != 11)
-                        }
-                        .padding(.horizontal, Spacing.md)
-                        .frame(height: 50)
-                        .background(Color.inputBackground)
-                        .cornerRadius(CornerRadius.md)
+                        Spacer()
                     }
-                    .padding(.horizontal, Spacing.xl)
-                    
-                    // 登录按钮
-                    Button(action: {
-                        viewModel.loginWithPhone(phone: phone, code: verifyCode)
-                    }) {
-                        Text("登录")
-                            .font(.buttonMedium)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(
-                                (phone.count == 11 && verifyCode.count >= 4)
-                                    ? AnyShapeStyle(Color.primaryGradient)
-                                    : AnyShapeStyle(Color.textDisabled)
-                            )
-                            .cornerRadius(CornerRadius.md)
-                    }
-                    .disabled(phone.count != 11 || verifyCode.count < 4)
-                    .padding(.horizontal, Spacing.xl)
+                    .padding(.horizontal, 10)
                     
                     Spacer()
-                }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .foregroundColor(.textPrimary)
+                        .frame(height: 40)
+                    
+                    // 标题
+                    VStack(spacing: 8) {
+                        Text("登录后体验完整功能")
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Text("使用手机号登录")
+                            .font(.system(size: 14))
+                            .foregroundColor(Color(hex: "#888888"))
                     }
+                    .padding(.bottom, 40)
+                    
+                    // 手机号输入
+                    VStack(spacing: 20) {
+                        HStack {
+                            TextField("", text: $phone)
+                                .placeholder(when: phone.isEmpty) {
+                                    Text("18638933359")
+                                        .foregroundColor(Color(hex: "#666666"))
+                                }
+                                .font(.system(size: 18))
+                                .foregroundColor(.white)
+                                .keyboardType(.phonePad)
+                            
+                            Text("11/11")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color(hex: "#666666"))
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
+                        .background(Color(hex: "#1a1a1a"))
+                        .cornerRadius(12)
+                        
+                        // 获取验证码按钮
+                        Button(action: {
+                            startCountdown()
+                            viewModel.sendVerifyCode(phone: phone)
+                        }) {
+                            Text(countdown > 0 ? "\(countdown)s后重新获取" : "获取验证码")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 52)
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color(hex: "#a855f7"), Color(hex: "#ec4899")],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .cornerRadius(30)
+                        }
+                        .disabled(countdown > 0 || phone.count < 11)
+                        .opacity(countdown > 0 || phone.count < 11 ? 0.6 : 1)
+                    }
+                    .padding(.horizontal, 25)
+                    
+                    Spacer()
+                    
+                    // 数字键盘
+                    NumericKeypad(text: $phone)
+                        .padding(.bottom, 20)
                 }
             }
-        }
-        .onDisappear {
-            timer?.invalidate()
-        }
-    }
-    
-    private func sendVerifyCode() {
-        guard phone.count == 11 else { return }
-        
-        // 埋点
-        AnalyticsManager.shared.trackAction(.clickGetVerifyCode, properties: [
-            "phone": String(phone.prefix(3)) + "****" + String(phone.suffix(4))
-        ])
-        
-        // 发送验证码
-        Task {
-            do {
-                try await APIService.shared.sendVerifyCode(phone: phone)
-                startCountdown()
-            } catch {
-                viewModel.errorMessage = (error as? APIError)?.userMessage ?? "发送失败"
-                viewModel.showError = true
-            }
+            .navigationBarHidden(true)
         }
     }
     
@@ -411,232 +522,246 @@ struct PhoneLoginView: View {
     }
 }
 
-// MARK: - 登录ViewModel
-@MainActor
-class LoginViewModel: ObservableObject {
+// MARK: - 数字键盘
+struct NumericKeypad: View {
+    @Binding var text: String
     
+    private let keys = [
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+        ["7", "8", "9"],
+        ["+*#", "0", "⌫"]
+    ]
+    
+    private let subLabels = [
+        ["", "ABC", "DEF"],
+        ["GHI", "JKL", "MNO"],
+        ["PQRS", "TUV", "WXYZ"],
+        ["", "", ""]
+    ]
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            ForEach(0..<4, id: \.self) { row in
+                HStack(spacing: 8) {
+                    ForEach(0..<3, id: \.self) { col in
+                        let key = keys[row][col]
+                        let subLabel = subLabels[row][col]
+                        
+                        Button(action: {
+                            handleKeyPress(key)
+                        }) {
+                            VStack(spacing: 2) {
+                                Text(key)
+                                    .font(.system(size: 24, weight: .medium))
+                                    .foregroundColor(.black)
+                                
+                                if !subLabel.isEmpty {
+                                    Text(subLabel)
+                                        .font(.system(size: 10))
+                                        .foregroundColor(Color(hex: "#666666"))
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(hex: "#d1d5db"))
+                            .cornerRadius(8)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 4)
+        .background(Color(hex: "#c7c7c7"))
+    }
+    
+    private func handleKeyPress(_ key: String) {
+        if key == "⌫" {
+            if !text.isEmpty {
+                text.removeLast()
+            }
+        } else if key != "+*#" {
+            if text.count < 11 {
+                text.append(key)
+            }
+        }
+    }
+}
+
+// MARK: - Placeholder扩展
+extension View {
+    func placeholder<Content: View>(
+        when shouldShow: Bool,
+        alignment: Alignment = .leading,
+        @ViewBuilder placeholder: () -> Content
+    ) -> some View {
+        ZStack(alignment: alignment) {
+            placeholder().opacity(shouldShow ? 1 : 0)
+            self
+        }
+    }
+}
+
+// MARK: - 加载遮罩
+struct LoadingOverlay: View {
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.5)
+                .ignoresSafeArea()
+            
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                .scaleEffect(1.5)
+        }
+    }
+}
+
+// MARK: - 登录ViewModel
+class LoginViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var showError = false
     @Published var errorMessage: String?
     @Published var showPhoneLogin = false
     @Published var isAgreed = false
     
-    private let authService: AuthServiceProtocol
-    
-    init(authService: AuthServiceProtocol = AuthService.shared) {
-        self.authService = authService
-    }
-    
-    // MARK: - 微信登录
     func loginWithWechat() {
         guard isAgreed else {
-            errorMessage = "请先同意用户协议"
             showError = true
+            errorMessage = "请先同意用户协议和隐私政策"
             return
         }
         
-        AnalyticsManager.shared.trackAction(.clickLoginWechat)
-        
         isLoading = true
-        
-        Task {
-            do {
-                // 调用微信SDK获取code
-                let code = try await WechatAuthManager.shared.requestAuth()
-                
-                // 使用code登录
-                let response = try await authService.loginWithWechat(code: code)
-                handleLoginSuccess(response)
-                
-                AnalyticsManager.shared.trackConversion(.loginSuccess, properties: [
-                    "login_type": "wechat",
-                    "is_new_user": "false"
-                ])
-            } catch {
-                handleLoginError(error, type: "wechat")
-            }
-            
-            isLoading = false
-        }
-    }
-    
-    // MARK: - Apple登录
-    func handleAppleSignIn(result: Result<ASAuthorization, Error>) {
-        guard isAgreed else {
-            errorMessage = "请先同意用户协议"
-            showError = true
-            return
-        }
-        
-        AnalyticsManager.shared.trackAction(.clickLoginApple)
-        
-        isLoading = true
-        
-        Task {
-            do {
+        // 调用微信SDK登录
+        WeChatManager.shared.login { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isLoading = false
                 switch result {
-                case .success(let authorization):
-                    guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
-                          let identityToken = appleIDCredential.identityToken,
-                          let identityTokenString = String(data: identityToken, encoding: .utf8),
-                          let authorizationCode = appleIDCredential.authorizationCode,
-                          let authorizationCodeString = String(data: authorizationCode, encoding: .utf8) else {
-                        throw APIError(code: ErrorCode.appleAuthFailed.rawValue, message: "Apple auth failed", details: nil)
-                    }
-                    
-                    let response = try await authService.loginWithApple(
-                        identityToken: identityTokenString,
-                        authorizationCode: authorizationCodeString
-                    )
-                    handleLoginSuccess(response)
-                    
-                    AnalyticsManager.shared.trackConversion(.loginSuccess, properties: [
-                        "login_type": "apple",
-                        "is_new_user": "false"
-                    ])
-                    
+                case .success(let token):
+                    // 登录成功，保存token
+                    TokenManager.shared.saveToken(token)
+                    AnalyticsManager.shared.trackEvent(.login, properties: ["method": "wechat"])
                 case .failure(let error):
-                    throw error
+                    self?.showError = true
+                    self?.errorMessage = error.localizedDescription
                 }
-            } catch {
-                handleLoginError(error, type: "apple")
             }
-            
-            isLoading = false
         }
     }
     
-    // MARK: - 手机号登录
+    func loginWithApple() {
+        guard isAgreed else {
+            showError = true
+            errorMessage = "请先同意用户协议和隐私政策"
+            return
+        }
+        
+        // Apple登录逻辑
+        AnalyticsManager.shared.trackEvent(.login, properties: ["method": "apple"])
+    }
+    
+    func handleAppleSignIn(result: Result<ASAuthorization, Error>) {
+        switch result {
+        case .success(let authorization):
+            if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+                let userIdentifier = appleIDCredential.user
+                let fullName = appleIDCredential.fullName
+                let email = appleIDCredential.email
+                
+                // 发送到后端验证
+                isLoading = true
+                APIService.shared.loginWithApple(
+                    userIdentifier: userIdentifier,
+                    fullName: fullName,
+                    email: email
+                ) { [weak self] result in
+                    DispatchQueue.main.async {
+                        self?.isLoading = false
+                        switch result {
+                        case .success(let response):
+                            TokenManager.shared.saveToken(response.token)
+                        case .failure(let error):
+                            self?.showError = true
+                            self?.errorMessage = error.localizedDescription
+                        }
+                    }
+                }
+            }
+        case .failure(let error):
+            showError = true
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    func sendVerifyCode(phone: String) {
+        isLoading = true
+        APIService.shared.sendVerifyCode(phone: phone) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                switch result {
+                case .success:
+                    // 验证码发送成功
+                    break
+                case .failure(let error):
+                    self?.showError = true
+                    self?.errorMessage = error.localizedDescription
+                }
+            }
+        }
+    }
+    
     func loginWithPhone(phone: String, code: String) {
         guard isAgreed else {
-            errorMessage = "请先同意用户协议"
             showError = true
+            errorMessage = "请先同意用户协议和隐私政策"
             return
         }
         
-        AnalyticsManager.shared.trackAction(.clickSubmitLogin, properties: [
-            "login_type": "phone"
-        ])
-        
         isLoading = true
-        
-        Task {
-            do {
-                let response = try await authService.loginWithPhone(phone: phone, code: code)
-                handleLoginSuccess(response)
-                showPhoneLogin = false
-                
-                AnalyticsManager.shared.trackConversion(.loginSuccess, properties: [
-                    "login_type": "phone",
-                    "is_new_user": "false"
-                ])
-            } catch {
-                handleLoginError(error, type: "phone")
-            }
-            
-            isLoading = false
-        }
-    }
-    
-    // MARK: - 登录成功处理
-    private func handleLoginSuccess(_ response: LoginResponse) {
-        // 保存Token
-        TokenManager.shared.saveTokens(from: response)
-        
-        // 保存用户信息
-        UserManager.shared.currentUser = response.user
-        
-        // 设置埋点用户ID
-        AnalyticsManager.shared.setUserId(response.user.id)
-        
-        // 发送登录成功通知
-        NotificationCenter.default.post(name: .userDidLogin, object: nil)
-    }
-    
-    // MARK: - 登录失败处理
-    private func handleLoginError(_ error: Error, type: String) {
-        if let apiError = error as? APIError {
-            errorMessage = apiError.userMessage
-        } else {
-            errorMessage = "登录失败，请稍后重试"
-        }
-        showError = true
-        
-        AnalyticsManager.shared.trackConversion(.loginFail, properties: [
-            "login_type": type,
-            "error_code": (error as? APIError)?.code ?? -1
-        ])
-    }
-}
-
-// MARK: - 认证服务协议
-protocol AuthServiceProtocol {
-    func loginWithWechat(code: String) async throws -> LoginResponse
-    func loginWithApple(identityToken: String, authorizationCode: String) async throws -> LoginResponse
-    func loginWithPhone(phone: String, code: String) async throws -> LoginResponse
-}
-
-// MARK: - 认证服务实现
-class AuthService: AuthServiceProtocol {
-    static let shared = AuthService()
-    
-    private init() {}
-    
-    func loginWithWechat(code: String) async throws -> LoginResponse {
-        return try await APIService.shared.loginWithWechat(code: code)
-    }
-    
-    func loginWithApple(identityToken: String, authorizationCode: String) async throws -> LoginResponse {
-        return try await APIService.shared.loginWithApple(identityToken: identityToken, authorizationCode: authorizationCode)
-    }
-    
-    func loginWithPhone(phone: String, code: String) async throws -> LoginResponse {
-        return try await APIService.shared.loginWithPhone(phone: phone, code: code)
-    }
-}
-
-// MARK: - 用户管理器
-class UserManager {
-    static let shared = UserManager()
-    
-    private let userKey = "current_user"
-    
-    private init() {}
-    
-    var currentUser: User? {
-        get {
-            guard let data = UserDefaults.standard.data(forKey: userKey) else { return nil }
-            return try? JSONDecoder().decode(User.self, from: data)
-        }
-        set {
-            if let user = newValue {
-                let data = try? JSONEncoder().encode(user)
-                UserDefaults.standard.set(data, forKey: userKey)
-            } else {
-                UserDefaults.standard.removeObject(forKey: userKey)
+        APIService.shared.loginWithPhone(phone: phone, code: code) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                switch result {
+                case .success(let response):
+                    TokenManager.shared.saveToken(response.token)
+                    AnalyticsManager.shared.trackEvent(.login, properties: ["method": "phone"])
+                case .failure(let error):
+                    self?.showError = true
+                    self?.errorMessage = error.localizedDescription
+                }
             }
         }
     }
-    
-    var isLoggedIn: Bool {
-        currentUser != nil && TokenManager.shared.isTokenValid
-    }
-    
-    func logout() {
-        currentUser = nil
-        TokenManager.shared.clearTokens()
-        AnalyticsManager.shared.setUserId(nil)
-        NotificationCenter.default.post(name: .userDidLogout, object: nil)
-    }
 }
 
-// MARK: - 通知名称扩展
-extension Notification.Name {
-    static let userDidLogin = Notification.Name("userDidLogin")
+// MARK: - Color扩展
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let a, r, g, b: UInt64
+        switch hex.count {
+        case 3: // RGB (12-bit)
+            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: // RGB (24-bit)
+            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: // ARGB (32-bit)
+            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (a, r, g, b) = (1, 1, 1, 0)
+        }
+        self.init(
+            .sRGB,
+            red: Double(r) / 255,
+            green: Double(g) / 255,
+            blue: Double(b) / 255,
+            opacity: Double(a) / 255
+        )
+    }
 }
 
 // MARK: - 预览
 #Preview {
     LoginView()
-        .preferredColorScheme(.dark)
 }
