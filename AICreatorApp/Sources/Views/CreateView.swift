@@ -2,7 +2,7 @@
 //  CreateView.swift
 //  AICreatorApp
 //
-//  创作页 - 完整SwiftUI代码框架
+//  创作页 - 完全匹配原型图设计
 //  基于设计规范文档 v3.0
 //
 //  Created by Manus AI on 2026/1/19.
@@ -13,431 +13,373 @@ import PhotosUI
 
 // MARK: - 创作页主视图
 struct CreateView: View {
-    
     @StateObject private var viewModel = CreateViewModel()
-    @State private var selectedCategory: TemplateCategory = .all
-    
-    private let columns = [
-        GridItem(.flexible(), spacing: Spacing.sm),
-        GridItem(.flexible(), spacing: Spacing.sm)
-    ]
+    @State private var showImagePicker = false
+    @State private var showCamera = false
+    @State private var selectedPhotoItem: PhotosPickerItem?
     
     var body: some View {
         ZStack {
-            Color.appBackground
+            // 背景
+            Color(hex: "#0D0D0D")
                 .ignoresSafeArea()
             
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: Spacing.lg) {
-                    // 顶部Banner
-                    CreateBannerView()
-                        .padding(.horizontal, Spacing.md)
-                    
-                    // 热门模板区域
-                    VStack(alignment: .leading, spacing: Spacing.md) {
-                        SectionHeader(title: "热门模板", subtitle: "最受欢迎的AI风格")
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: Spacing.sm) {
-                                ForEach(viewModel.hotTemplates) { template in
-                                    HotTemplateCard(template: template) {
-                                        viewModel.selectTemplate(template)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, Spacing.md)
-                        }
-                    }
-                    
-                    // 分类Tab
-                    CategoryTabBar(
-                        categories: TemplateCategory.allCases,
-                        selectedCategory: $selectedCategory,
-                        onCategoryChange: { category in
-                            Task {
-                                await viewModel.loadTemplates(category: category)
-                            }
-                        }
-                    )
-                    
-                    // 模板网格
-                    LazyVGrid(columns: columns, spacing: Spacing.sm) {
-                        ForEach(viewModel.templates) { template in
-                            TemplateCard(template: template) {
-                                viewModel.selectTemplate(template)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, Spacing.md)
-                    .padding(.bottom, 100)
-                }
-            }
-            .refreshable {
-                await viewModel.refreshTemplates()
+            VStack(spacing: 0) {
+                // 状态栏
+                CreateStatusBar()
+                
+                // Hero区域
+                HeroSection(templates: viewModel.featuredTemplates)
+                
+                // 快捷操作
+                QuickActionsView(actions: viewModel.quickActions)
+                
+                // 上传区域
+                UploadSection(
+                    onCameraTap: { showCamera = true },
+                    onUploadTap: { showImagePicker = true }
+                )
+                
+                Spacer()
             }
             
-            // 加载状态
-            if viewModel.isLoading && viewModel.templates.isEmpty {
-                LoadingOverlay()
+            // 底部导航
+            VStack {
+                Spacer()
+                CreateBottomNav()
             }
         }
-        .sheet(item: $viewModel.selectedTemplate) { template in
-            TemplateDetailSheet(template: template, viewModel: viewModel)
+        .photosPicker(isPresented: $showImagePicker, selection: $selectedPhotoItem, matching: .images)
+        .sheet(isPresented: $showCamera) {
+            CameraPlaceholder()
+        }
+        .onChange(of: selectedPhotoItem) { _, newValue in
+            if newValue != nil {
+                viewModel.startGeneration()
+            }
         }
         .fullScreenCover(isPresented: $viewModel.showGenerating) {
             GeneratingView(viewModel: viewModel)
         }
         .onAppear {
+            viewModel.loadData()
             AnalyticsManager.shared.trackPageView(.create)
-            
-            Task {
-                await viewModel.loadInitialData()
-            }
         }
     }
 }
 
-// MARK: - 创作Banner视图
-struct CreateBannerView: View {
+// MARK: - 状态栏
+struct CreateStatusBar: View {
     var body: some View {
-        ZStack(alignment: .leading) {
-            // 渐变背景
-            RoundedRectangle(cornerRadius: CornerRadius.lg)
-                .fill(Color.primaryGradient)
-                .frame(height: 120)
-            
-            HStack {
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text("AI一键生成")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    
-                    Text("上传照片，选择风格，即刻生成")
-                        .font(.caption1)
-                        .foregroundColor(.white.opacity(0.8))
-                }
-                .padding(.leading, Spacing.lg)
-                
-                Spacer()
-                
-                Image(systemName: "wand.and.stars")
-                    .font(.system(size: 50))
-                    .foregroundColor(.white.opacity(0.3))
-                    .padding(.trailing, Spacing.lg)
-            }
-        }
-    }
-}
-
-// MARK: - 区块标题
-struct SectionHeader: View {
-    let title: String
-    let subtitle: String?
-    var showMore: Bool = false
-    var onMoreTap: (() -> Void)? = nil
-    
-    init(title: String, subtitle: String? = nil, showMore: Bool = false, onMoreTap: (() -> Void)? = nil) {
-        self.title = title
-        self.subtitle = subtitle
-        self.showMore = showMore
-        self.onMoreTap = onMoreTap
-    }
-    
-    var body: some View {
-        HStack(alignment: .bottom) {
-            VStack(alignment: .leading, spacing: Spacing.xxs) {
-                Text(title)
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(.textPrimary)
-                
-                if let subtitle = subtitle {
-                    Text(subtitle)
-                        .font(.caption1)
-                        .foregroundColor(.textSecondary)
-                }
-            }
+        HStack {
+            Text("22:48")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.white)
             
             Spacer()
             
-            if showMore {
-                Button(action: { onMoreTap?() }) {
-                    HStack(spacing: Spacing.xxs) {
-                        Text("更多")
-                            .font(.caption1)
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 10))
-                    }
-                    .foregroundColor(.textSecondary)
-                }
-            }
-        }
-        .padding(.horizontal, Spacing.md)
-    }
-}
-
-// MARK: - 热门模板卡片
-struct HotTemplateCard: View {
-    let template: TemplateListItem
-    let onTap: () -> Void
-    
-    var body: some View {
-        Button(action: onTap) {
-            VStack(spacing: 0) {
-                // 封面图
-                ZStack(alignment: .topTrailing) {
-                    AsyncImage(url: URL(string: template.coverURL)) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        case .failure, .empty:
-                            Rectangle()
-                                .fill(Color.primaryGradient.opacity(0.3))
-                        @unknown default:
-                            EmptyView()
-                        }
-                    }
-                    .frame(width: 140, height: 180)
-                    .clipped()
-                    
-                    // 标签
-                    if template.isHot {
-                        GradientTag(text: "热门")
-                            .padding(Spacing.xs)
-                    } else if template.isNew {
-                        GradientTag(text: "新")
-                            .padding(Spacing.xs)
+            HStack(spacing: 5) {
+                // 信号
+                HStack(spacing: 1) {
+                    ForEach(0..<4, id: \.self) { i in
+                        RoundedRectangle(cornerRadius: 1)
+                            .fill(Color.white)
+                            .frame(width: 3, height: CGFloat(4 + i * 2))
                     }
                 }
                 
-                // 信息
-                VStack(alignment: .leading, spacing: Spacing.xxs) {
-                    Text(template.name)
-                        .font(.caption1)
-                        .fontWeight(.medium)
-                        .foregroundColor(.textPrimary)
-                        .lineLimit(1)
-                    
-                    HStack(spacing: Spacing.xxs) {
-                        Image(systemName: "bolt.fill")
-                            .font(.system(size: 10))
-                            .foregroundColor(.gradientPurple)
-                        
-                        Text(template.isFree ? "免费" : "\(template.pointsCost)积分")
-                            .font(.caption2)
-                            .foregroundColor(.textSecondary)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(Spacing.xs)
+                // WiFi
+                Image(systemName: "wifi")
+                    .font(.system(size: 14))
+                
+                // 电池
+                BatteryIcon()
             }
-            .frame(width: 140)
-            .background(Color.cardBackground)
-            .cornerRadius(CornerRadius.md)
+            .foregroundColor(.white)
         }
-        .buttonStyle(.plain)
+        .padding(.horizontal, 20)
+        .frame(height: 44)
     }
 }
 
-// MARK: - 模板卡片
-struct TemplateCard: View {
-    let template: TemplateListItem
-    let onTap: () -> Void
+// MARK: - Hero区域
+struct HeroSection: View {
+    let templates: [FeaturedTemplate]
+    
+    var body: some View {
+        ZStack {
+            // 背景光晕
+            RadialGradient(
+                colors: [Color(hex: "#a855f7").opacity(0.2), Color.clear],
+                center: .center,
+                startRadius: 0,
+                endRadius: 200
+            )
+            .blur(radius: 60)
+            
+            VStack(spacing: 0) {
+                // 标题
+                VStack(spacing: 10) {
+                    Text("好看、好玩、好有趣")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.white)
+                    
+                    Text("AI创图，释放你的无限创意")
+                        .font(.system(size: 16))
+                        .foregroundColor(Color(hex: "#888888"))
+                }
+                .padding(.top, 30)
+                .padding(.bottom, 40)
+                
+                // 模板轮播
+                TemplateCarousel(templates: templates)
+            }
+        }
+        .frame(height: 380)
+    }
+}
+
+// MARK: - 模板轮播
+struct TemplateCarousel: View {
+    let templates: [FeaturedTemplate]
+    
+    var body: some View {
+        HStack(spacing: 15) {
+            ForEach(templates.indices, id: \.self) { index in
+                TemplatePreviewCard(
+                    template: templates[index],
+                    rotation: getRotation(for: index),
+                    scale: getScale(for: index),
+                    zIndex: getZIndex(for: index)
+                )
+            }
+        }
+        .padding(.horizontal, 30)
+    }
+    
+    private func getRotation(for index: Int) -> Double {
+        switch index {
+        case 0: return -5
+        case 1: return 0
+        case 2: return 5
+        default: return 0
+        }
+    }
+    
+    private func getScale(for index: Int) -> CGFloat {
+        return index == 1 ? 1.05 : 1.0
+    }
+    
+    private func getZIndex(for index: Int) -> Double {
+        return index == 1 ? 2 : 1
+    }
+}
+
+// MARK: - 模板预览卡片
+struct TemplatePreviewCard: View {
+    let template: FeaturedTemplate
+    let rotation: Double
+    let scale: CGFloat
+    let zIndex: Double
+    
+    var body: some View {
+        ZStack {
+            // 背景渐变
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(
+                        colors: template.gradientColors,
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+            
+            // 标签
+            VStack {
+                HStack {
+                    Text(template.name)
+                        .font(.system(size: 12))
+                        .foregroundColor(.white)
+                        .shadow(color: .black.opacity(0.5), radius: 3, y: 1)
+                    Spacer()
+                }
+                .padding(10)
+                
+                Spacer()
+                
+                // 生成按钮
+                HStack(spacing: 4) {
+                    Text("生成")
+                        .font(.system(size: 12))
+                    Text("✨")
+                        .font(.system(size: 10))
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+                .background(Color.white.opacity(0.2))
+                .background(.ultraThinMaterial.opacity(0.5))
+                .cornerRadius(15)
+                .padding(.bottom, 10)
+            }
+        }
+        .frame(width: 120, height: 160)
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.3), radius: 10, y: 10)
+        .rotationEffect(.degrees(rotation))
+        .scaleEffect(scale)
+        .zIndex(zIndex)
+    }
+}
+
+// MARK: - 快捷操作
+struct QuickActionsView: View {
+    let actions: [QuickAction]
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(actions) { action in
+                    QuickActionChip(action: action)
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .padding(.vertical, 20)
+    }
+}
+
+// MARK: - 快捷操作标签
+struct QuickActionChip: View {
+    let action: QuickAction
     
     var body: some View {
         Button(action: {
-            AnalyticsManager.shared.trackAction(.clickTemplateCard, properties: [
-                "template_id": template.id,
-                "template_name": template.name,
-                "category": template.category.rawValue
+            AnalyticsManager.shared.trackAction(.clickQuickAction, properties: [
+                "action_name": action.name
             ])
-            onTap()
         }) {
-            VStack(spacing: 0) {
-                // 封面图
-                ZStack(alignment: .bottomTrailing) {
-                    AsyncImage(url: URL(string: template.coverURL)) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        case .failure, .empty:
-                            Rectangle()
-                                .fill(Color.primaryGradient.opacity(0.3))
-                                .overlay(
-                                    Image(systemName: "photo")
-                                        .foregroundColor(.textTertiary)
-                                )
-                        @unknown default:
-                            EmptyView()
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(3/4, contentMode: .fit)
-                    .clipped()
-                    
-                    // 使用次数
-                    HStack(spacing: 2) {
-                        Image(systemName: "person.2.fill")
-                            .font(.system(size: 10))
-                        Text(formatCount(template.usageCount))
-                            .font(.caption3)
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, Spacing.xs)
-                    .padding(.vertical, 2)
-                    .background(Color.black.opacity(0.5))
-                    .cornerRadius(CornerRadius.xs)
-                    .padding(Spacing.xs)
-                }
-                
-                // 信息
-                VStack(alignment: .leading, spacing: Spacing.xxs) {
-                    Text(template.name)
-                        .font(.caption1)
-                        .fontWeight(.medium)
-                        .foregroundColor(.textPrimary)
-                        .lineLimit(1)
-                    
-                    HStack {
-                        HStack(spacing: Spacing.xxs) {
-                            Image(systemName: "bolt.fill")
-                                .font(.system(size: 10))
-                                .foregroundColor(.gradientPurple)
-                            
-                            Text(template.isFree ? "免费" : "\(template.pointsCost)积分")
-                                .font(.caption2)
-                                .foregroundColor(.textSecondary)
-                        }
-                        
-                        Spacer()
-                        
-                        if template.isHot {
-                            Image(systemName: "flame.fill")
-                                .font(.system(size: 12))
-                                .foregroundColor(.gradientOrange)
-                        }
-                    }
-                }
-                .padding(Spacing.xs)
-            }
-            .background(Color.cardBackground)
-            .cornerRadius(CornerRadius.md)
+            Text(action.name)
+                .font(.system(size: 14))
+                .foregroundColor(.white)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 10)
+                .background(Color.white.opacity(0.08))
+                .cornerRadius(20)
         }
-        .buttonStyle(.plain)
-    }
-    
-    private func formatCount(_ count: Int) -> String {
-        if count >= 10000 {
-            return String(format: "%.1fw", Double(count) / 10000)
-        } else if count >= 1000 {
-            return String(format: "%.1fk", Double(count) / 1000)
-        }
-        return "\(count)"
     }
 }
 
-// MARK: - 模板详情Sheet
-struct TemplateDetailSheet: View {
-    let template: TemplateListItem
-    @ObservedObject var viewModel: CreateViewModel
-    @Environment(\.dismiss) private var dismiss
+// MARK: - 上传区域
+struct UploadSection: View {
+    let onCameraTap: () -> Void
+    let onUploadTap: () -> Void
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.appBackground
-                    .ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(spacing: Spacing.lg) {
-                        // 预览图
-                        AsyncImage(url: URL(string: template.coverURL)) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                            case .failure, .empty:
-                                Rectangle()
-                                    .fill(Color.primaryGradient.opacity(0.3))
-                                    .aspectRatio(3/4, contentMode: .fit)
-                            @unknown default:
-                                EmptyView()
-                            }
-                        }
-                        .cornerRadius(CornerRadius.lg)
-                        .padding(.horizontal, Spacing.md)
-                        
-                        // 模板信息
-                        VStack(alignment: .leading, spacing: Spacing.md) {
-                            HStack {
-                                Text(template.name)
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.textPrimary)
-                                
-                                Spacer()
-                                
-                                HStack(spacing: Spacing.xxs) {
-                                    Image(systemName: "bolt.fill")
-                                        .foregroundColor(.gradientPurple)
-                                    Text(template.isFree ? "免费" : "\(template.pointsCost)积分")
-                                        .fontWeight(.semibold)
-                                        .foregroundStyle(Color.primaryGradient)
-                                }
-                            }
-                            
-                            HStack(spacing: Spacing.md) {
-                                Label("\(template.usageCount)人使用", systemImage: "person.2.fill")
-                                Label(template.category.displayName, systemImage: template.category.icon)
-                            }
-                            .font(.caption1)
-                            .foregroundColor(.textSecondary)
-                        }
-                        .padding(.horizontal, Spacing.md)
-                        
-                        // 上传按钮
-                        PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
-                            HStack(spacing: Spacing.sm) {
-                                Image(systemName: "photo.badge.plus")
-                                    .font(.system(size: 20))
-                                Text("选择照片开始生成")
-                                    .font(.buttonMedium)
-                            }
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(Color.primaryGradient)
-                            .cornerRadius(CornerRadius.md)
-                        }
-                        .padding(.horizontal, Spacing.md)
-                        .onChange(of: viewModel.selectedPhotoItem) { _, newValue in
-                            if newValue != nil {
-                                dismiss()
-                                viewModel.startGeneration()
-                            }
-                        }
-                    }
-                    .padding(.vertical, Spacing.lg)
+        HStack(spacing: 12) {
+            // 相机按钮
+            Button(action: onCameraTap) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.white.opacity(0.1))
+                        .frame(width: 56, height: 56)
+                    
+                    Image(systemName: "camera")
+                        .font(.system(size: 24))
+                        .foregroundColor(.white)
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.textSecondary)
-                    }
+            
+            // 上传按钮
+            Button(action: onUploadTap) {
+                HStack(spacing: 10) {
+                    Image(systemName: "arrow.up")
+                        .font(.system(size: 18, weight: .medium))
+                    
+                    Text("添加照片")
+                        .font(.system(size: 16, weight: .medium))
                 }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+                .background(
+                    LinearGradient(
+                        colors: [Color(hex: "#a855f7"), Color(hex: "#ec4899")],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .cornerRadius(28)
             }
         }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
+        .padding(.horizontal, 20)
+    }
+}
+
+// MARK: - 底部导航
+struct CreateBottomNav: View {
+    var body: some View {
+        HStack {
+            // 左侧 - 发现
+            VStack(spacing: 4) {
+                ZStack {
+                    Circle()
+                        .stroke(Color(hex: "#666666"), lineWidth: 2)
+                        .frame(width: 24, height: 24)
+                    
+                    Circle()
+                        .fill(Color(hex: "#666666"))
+                        .frame(width: 6, height: 6)
+                        .offset(x: -4, y: -4)
+                }
+            }
+            .foregroundColor(Color(hex: "#666666"))
+            .frame(maxWidth: .infinity)
+            
+            // 中间 - 创作按钮
+            ZStack {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color(hex: "#a855f7"), Color(hex: "#ec4899")],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 56, height: 56)
+                    .shadow(color: Color(hex: "#a855f7").opacity(0.4), radius: 10, y: 4)
+                
+                // 图标
+                ZStack {
+                    RoundedRectangle(cornerRadius: 4)
+                        .stroke(Color.white, lineWidth: 2)
+                        .frame(width: 20, height: 20)
+                    
+                    Image(systemName: "plus")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.white)
+                }
+            }
+            .offset(y: -20)
+            
+            // 右侧 - 我的
+            VStack(spacing: 4) {
+                Image(systemName: "person")
+                    .font(.system(size: 24))
+            }
+            .foregroundColor(Color(hex: "#666666"))
+            .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, 40)
+        .padding(.bottom, 20)
+        .frame(height: 80)
+        .background(
+            LinearGradient(
+                colors: [Color.clear, Color(hex: "#0D0D0D")],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
     }
 }
 
@@ -448,317 +390,178 @@ struct GeneratingView: View {
     
     var body: some View {
         ZStack {
-            Color.appBackground
+            Color(hex: "#0D0D0D")
                 .ignoresSafeArea()
             
-            VStack(spacing: Spacing.xl) {
-                Spacer()
-                
-                // 动画效果
+            VStack(spacing: 30) {
+                // 进度环
                 ZStack {
-                    // 外圈
                     Circle()
-                        .stroke(Color.gradientPurple.opacity(0.2), lineWidth: 8)
-                        .frame(width: 150, height: 150)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 8)
+                        .frame(width: 120, height: 120)
                     
-                    // 进度圈
                     Circle()
-                        .trim(from: 0, to: CGFloat(viewModel.generationProgress) / 100)
+                        .trim(from: 0, to: viewModel.generationProgress)
                         .stroke(
-                            Color.primaryGradient,
+                            LinearGradient(
+                                colors: [Color(hex: "#a855f7"), Color(hex: "#ec4899")],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
                             style: StrokeStyle(lineWidth: 8, lineCap: .round)
                         )
-                        .frame(width: 150, height: 150)
+                        .frame(width: 120, height: 120)
                         .rotationEffect(.degrees(-90))
-                        .animation(.easeInOut(duration: 0.3), value: viewModel.generationProgress)
+                        .animation(.easeInOut, value: viewModel.generationProgress)
                     
-                    // 百分比
-                    VStack(spacing: Spacing.xxs) {
-                        Text("\(viewModel.generationProgress)%")
-                            .font(.title1)
-                            .fontWeight(.bold)
-                            .foregroundStyle(Color.primaryGradient)
-                        
-                        Text(viewModel.generationStatus.displayName)
-                            .font(.caption1)
-                            .foregroundColor(.textSecondary)
-                    }
+                    Text("\(Int(viewModel.generationProgress * 100))%")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.white)
                 }
                 
-                // 提示文字
-                VStack(spacing: Spacing.xs) {
-                    Text("AI正在创作中")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.textPrimary)
+                VStack(spacing: 10) {
+                    Text("AI正在创作中...")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
                     
-                    Text("预计需要\(viewModel.estimatedTime)秒，请耐心等待")
-                        .font(.bodySmall)
-                        .foregroundColor(.textSecondary)
+                    Text("预计需要10-30秒")
+                        .font(.system(size: 14))
+                        .foregroundColor(Color(hex: "#888888"))
                 }
-                
-                Spacer()
                 
                 // 取消按钮
                 Button(action: {
                     viewModel.cancelGeneration()
                     dismiss()
                 }) {
-                    Text("取消生成")
-                        .font(.buttonMedium)
-                        .foregroundColor(.textSecondary)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.inputBackground)
-                        .cornerRadius(CornerRadius.md)
+                    Text("取消")
+                        .font(.system(size: 16))
+                        .foregroundColor(Color(hex: "#888888"))
+                        .padding(.horizontal, 40)
+                        .padding(.vertical, 12)
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(25)
                 }
-                .padding(.horizontal, Spacing.xl)
-                .padding(.bottom, Spacing.xl)
+                .padding(.top, 20)
             }
         }
         .onAppear {
-            AnalyticsManager.shared.trackPageView(.generating, properties: [
-                "task_id": viewModel.currentTaskId ?? ""
-            ])
+            viewModel.simulateGeneration()
         }
-        .onChange(of: viewModel.generationCompleted) { _, completed in
-            if completed {
-                dismiss()
+    }
+}
+
+// MARK: - 占位视图
+struct CameraPlaceholder: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            VStack(spacing: 20) {
+                Image(systemName: "camera.fill")
+                    .font(.system(size: 60))
+                    .foregroundColor(.white.opacity(0.5))
+                
+                Text("相机")
+                    .font(.title)
+                    .foregroundColor(.white)
+                
+                Text("此处集成系统相机")
+                    .foregroundColor(.gray)
+                
+                Button("关闭") {
+                    dismiss()
+                }
+                .foregroundColor(.white)
+                .padding(.top, 20)
             }
         }
     }
 }
 
-// MARK: - 创作ViewModel
-@MainActor
+// MARK: - 数据模型
+struct FeaturedTemplate: Identifiable {
+    let id = UUID()
+    let name: String
+    let gradientColors: [Color]
+}
+
+struct QuickAction: Identifiable {
+    let id = UUID()
+    let name: String
+    let icon: String
+}
+
+// MARK: - ViewModel
 class CreateViewModel: ObservableObject {
-    
-    @Published var hotTemplates: [TemplateListItem] = []
-    @Published var templates: [TemplateListItem] = []
-    @Published var selectedTemplate: TemplateListItem?
-    @Published var selectedPhotoItem: PhotosPickerItem?
-    @Published var uploadedImageURL: String?
-    
-    @Published var isLoading = false
+    @Published var featuredTemplates: [FeaturedTemplate] = []
+    @Published var quickActions: [QuickAction] = []
     @Published var showGenerating = false
-    @Published var generationProgress = 0
-    @Published var generationStatus: GenerationStatus = .pending
-    @Published var estimatedTime = 30
-    @Published var generationCompleted = false
-    @Published var currentTaskId: String?
+    @Published var generationProgress: CGFloat = 0
     
-    private var currentCategory: TemplateCategory = .all
-    private var pollingTimer: Timer?
+    private var generationTimer: Timer?
     
-    // MARK: - 加载初始数据
-    func loadInitialData() async {
-        isLoading = true
+    func loadData() {
+        // 加载精选模板
+        featuredTemplates = [
+            FeaturedTemplate(
+                name: "新年红包",
+                gradientColors: [Color(hex: "#fecaca"), Color(hex: "#ef4444")]
+            ),
+            FeaturedTemplate(
+                name: "宠物过新年",
+                gradientColors: [Color(hex: "#fed7aa"), Color(hex: "#f97316")]
+            ),
+            FeaturedTemplate(
+                name: "手持拍立得",
+                gradientColors: [Color(hex: "#bfdbfe"), Color(hex: "#3b82f6")]
+            )
+        ]
         
-        do {
-            async let hotTask = loadHotTemplates()
-            async let allTask = loadTemplates()
-            
-            _ = try await (hotTask, allTask)
-        } catch {
-            ErrorHandler.shared.handleAPIError(error as! APIError)
-        }
-        
-        isLoading = false
-    }
-    
-    // MARK: - 加载热门模板
-    private func loadHotTemplates() async throws {
-        // Mock数据
-        hotTemplates = [
-            TemplateListItem(id: "1", name: "韩式证件照", coverURL: "https://example.com/t1.jpg", category: .portrait, pointsCost: 10, isFree: false, isHot: true, isNew: false, usageCount: 12500),
-            TemplateListItem(id: "2", name: "动漫头像", coverURL: "https://example.com/t2.jpg", category: .anime, pointsCost: 0, isFree: true, isHot: true, isNew: false, usageCount: 8900),
-            TemplateListItem(id: "3", name: "油画风格", coverURL: "https://example.com/t3.jpg", category: .artistic, pointsCost: 15, isFree: false, isHot: false, isNew: true, usageCount: 5600)
+        // 加载快捷操作
+        quickActions = [
+            QuickAction(name: "老照片修复", icon: "photo.on.rectangle"),
+            QuickAction(name: "AI一键追色", icon: "paintpalette"),
+            QuickAction(name: "毛绒相框", icon: "square.on.square"),
+            QuickAction(name: "一张拍立得", icon: "camera"),
+            QuickAction(name: "INS边框", icon: "square")
         ]
     }
     
-    // MARK: - 加载模板列表
-    func loadTemplates(category: TemplateCategory? = nil) async {
-        if let category = category {
-            currentCategory = category
-        }
-        
-        isLoading = templates.isEmpty
-        
-        do {
-            let response = try await APIService.shared.getTemplates(
-                page: 1,
-                pageSize: 20,
-                category: currentCategory == .all ? nil : currentCategory.rawValue
-            )
-            templates = response.items
-        } catch {
-            // 使用Mock数据
-            templates = [
-                TemplateListItem(id: "1", name: "韩式证件照", coverURL: "https://example.com/t1.jpg", category: .portrait, pointsCost: 10, isFree: false, isHot: true, isNew: false, usageCount: 12500),
-                TemplateListItem(id: "2", name: "动漫头像", coverURL: "https://example.com/t2.jpg", category: .anime, pointsCost: 0, isFree: true, isHot: true, isNew: false, usageCount: 8900)
-            ]
-        }
-        
-        isLoading = false
-    }
-    
-    // MARK: - 刷新模板
-    func refreshTemplates() async {
-        await loadTemplates()
-    }
-    
-    // MARK: - 选择模板
-    func selectTemplate(_ template: TemplateListItem) {
-        selectedTemplate = template
-        
-        AnalyticsManager.shared.trackPageView(.templateSelect, properties: [
-            "template_id": template.id
-        ])
-    }
-    
-    // MARK: - 开始生成
     func startGeneration() {
-        guard let template = selectedTemplate,
-              let photoItem = selectedPhotoItem else { return }
-        
         showGenerating = true
         generationProgress = 0
-        generationStatus = .pending
-        
-        Task {
-            do {
-                // 1. 上传图片
-                generationStatus = .pending
-                let imageData = try await loadImageData(from: photoItem)
-                let uploadResponse = try await APIService.shared.uploadImage(imageData)
-                uploadedImageURL = uploadResponse.url
-                
-                // 2. 创建生成任务
-                AnalyticsManager.shared.trackConversion(.generateStart, properties: [
-                    "template_id": template.id,
-                    "points_cost": template.pointsCost
-                ])
-                
-                let response = try await APIService.shared.createGeneration(
-                    templateId: template.id,
-                    imageURL: uploadResponse.url
-                )
-                
-                currentTaskId = response.taskId
-                estimatedTime = response.estimatedTime
-                generationStatus = .processing
-                
-                // 3. 轮询状态
-                startPolling(taskId: response.taskId)
-                
-            } catch {
-                handleGenerationError(error)
+    }
+    
+    func simulateGeneration() {
+        generationTimer?.invalidate()
+        generationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] timer in
+            guard let self = self else {
+                timer.invalidate()
+                return
             }
-        }
-    }
-    
-    // MARK: - 加载图片数据
-    private func loadImageData(from item: PhotosPickerItem) async throws -> Data {
-        guard let data = try await item.loadTransferable(type: Data.self) else {
-            throw APIError(code: -1, message: "Failed to load image", details: nil)
-        }
-        return data
-    }
-    
-    // MARK: - 开始轮询
-    private func startPolling(taskId: String) {
-        pollingTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                await self?.checkGenerationStatus(taskId: taskId)
-            }
-        }
-    }
-    
-    // MARK: - 检查生成状态
-    private func checkGenerationStatus(taskId: String) async {
-        do {
-            let task = try await APIService.shared.getGenerationStatus(taskId: taskId)
             
-            generationProgress = task.progress
-            generationStatus = task.status
-            
-            if task.isCompleted {
-                pollingTimer?.invalidate()
-                generationCompleted = true
-                
-                AnalyticsManager.shared.trackConversion(.generateSuccess, properties: [
-                    "task_id": taskId,
-                    "template_id": selectedTemplate?.id ?? ""
-                ])
-                
-                // 跳转到结果页
-                NotificationCenter.default.post(
-                    name: .navigateToResult,
-                    object: nil,
-                    userInfo: ["taskId": taskId, "resultURL": task.resultImageURL ?? ""]
-                )
-            } else if task.isFailed {
-                pollingTimer?.invalidate()
-                handleGenerationError(APIError(code: ErrorCode.generationFailed.rawValue, message: task.errorMessage ?? "生成失败", details: nil))
+            if self.generationProgress < 1.0 {
+                self.generationProgress += 0.02
+            } else {
+                timer.invalidate()
+                // 生成完成，跳转到结果页
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.showGenerating = false
+                }
             }
-        } catch {
-            // 继续轮询
         }
     }
     
-    // MARK: - 取消生成
     func cancelGeneration() {
-        pollingTimer?.invalidate()
-        
-        if let taskId = currentTaskId {
-            AnalyticsManager.shared.trackConversion(.generateCancel, properties: [
-                "task_id": taskId,
-                "progress": generationProgress
-            ])
-            
-            Task {
-                try? await APIService.shared.cancelGeneration(taskId: taskId)
-            }
-        }
-        
-        resetGenerationState()
-    }
-    
-    // MARK: - 处理生成错误
-    private func handleGenerationError(_ error: Error) {
-        pollingTimer?.invalidate()
-        showGenerating = false
-        
-        if let apiError = error as? APIError {
-            ErrorHandler.shared.handleAPIError(apiError, context: .generation)
-        }
-        
-        AnalyticsManager.shared.trackConversion(.generateFail, properties: [
-            "template_id": selectedTemplate?.id ?? "",
-            "error_code": (error as? APIError)?.code ?? -1
-        ])
-        
-        resetGenerationState()
-    }
-    
-    // MARK: - 重置生成状态
-    private func resetGenerationState() {
+        generationTimer?.invalidate()
         generationProgress = 0
-        generationStatus = .pending
-        generationCompleted = false
-        currentTaskId = nil
-        selectedPhotoItem = nil
-        uploadedImageURL = nil
     }
-}
-
-// MARK: - 通知名称扩展
-extension Notification.Name {
-    static let navigateToResult = Notification.Name("navigateToResult")
 }
 
 // MARK: - 预览
 #Preview {
     CreateView()
-        .preferredColorScheme(.dark)
 }
